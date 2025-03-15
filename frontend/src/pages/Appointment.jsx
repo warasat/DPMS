@@ -158,14 +158,19 @@
 // };
 
 // export default Appointment;
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { assets, doctors } from "../assets/assets";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import RelatedDoctors from "../components/RelatedDoctors";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 
 const Appointment = () => {
   const { docId } = useParams(); // Destructure docId from useParams
+  const {doctors, currencySymbol , backendUrl, token, getDoctorsData } = useContext(AppContext);
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+  const navigate = useNavigate();
 
   const [docInfo, setDocInfo] = useState(null);
   const [docSlots, setDocSlots] = useState([]);
@@ -211,6 +216,13 @@ const Appointment = () => {
 
     setDocSlots(allSlots);
   };
+
+  const bookAppointment = async () => {
+    if(!token){
+      toast.warn('Login to Book Appointment')
+      return navigate('/login')
+    }
+  }
 
   // Fetch doctor's information based on docId
   useEffect(() => {

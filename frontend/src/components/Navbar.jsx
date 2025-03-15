@@ -165,16 +165,13 @@
 
 // export default Navbar;
 
-
-
-
 import React, { useState, useContext, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { AppContext } from "../context/AppContext"; // Ensure you import AppContext
 import { assets } from "../assets/assets";
 
 function Navbar() {
-  const { token, setToken } = useContext(AppContext); // Access token from context
+  const { token, setToken, userData } = useContext(AppContext); // Access token from context
   const [isSticky, setIsSticky] = useState(false);
   const [profilePic, setProfilePic] = useState(""); // State for the profile picture
   const navigate = useNavigate();
@@ -218,7 +215,9 @@ function Navbar() {
   return (
     <div className="relative">
       <div
-        className={`navbar bg-blue-900 text-white ${isSticky ? "fixed top-0 left-0 right-0 z-50 shadow-md" : ""}`}
+        className={`navbar bg-blue-900 text-white ${
+          isSticky ? "fixed top-0 left-0 right-0 z-50 shadow-md" : ""
+        }`}
       >
         <div className="navbar-start">
           <div className="dropdown">
@@ -282,7 +281,7 @@ function Navbar() {
         </div>
 
         <div className="navbar-end">
-          {!token ? (
+          {!token && userData ? (
             <NavLink
               to="/login"
               className="btn bg-white text-blue-900 hover:bg-gray-200"
@@ -292,7 +291,7 @@ function Navbar() {
           ) : (
             <div className="flex items-center space-x-2 cursor-pointer group relative">
               <img
-                src={profilePic}
+                src={userData.image}
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
@@ -328,5 +327,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
-

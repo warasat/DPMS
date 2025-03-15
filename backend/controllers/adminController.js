@@ -1,6 +1,6 @@
 // // API FOR ADDING DOCTORS
 // import validator from "validator"
-// import bcrypt from "bcrypt"
+// import bcrypt from "bcryptjs"
 // import {v2 as cloudinary} from "cloudinary"
 // import doctorModel from "../models/Doctor"
 
@@ -85,7 +85,7 @@
 // export { addDoctor };
 
 import validator from "validator";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/Doctor.js";
 import jwt from "jsonwebtoken";

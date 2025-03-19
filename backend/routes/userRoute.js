@@ -5,11 +5,11 @@ import {
   getProfile,
   updateProfile,
   bookAppointment,
-  listAppointment
+  listAppointment,
+  cancelAppointment,
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 import upload from "../middlewares/multer.js";
-
 
 const userRouter = express.Router();
 
@@ -22,10 +22,8 @@ userRouter.post(
   authUser,
   updateProfile
 );
-userRouter.post('/book-appointment',authUser, bookAppointment)
-userRouter.get('/appointments' ,authUser , listAppointment)
-
-
+userRouter.post("/book-appointment", authUser, bookAppointment);
+userRouter.get("/appointments", authUser, listAppointment);
+userRouter.post("/cancel-appointment", authUser, cancelAppointment);
 
 export default userRouter;
-

@@ -1,13 +1,11 @@
-import mongoose from 'mongoose'
-import validator from 'validator'
-import bcrypt from 'bcrypt'
-import userModel from '../models/User.js'
-import jwt from 'jsonwebtoken'
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcryptjs";
+import userModel from "../models/User.js";
+import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
-import doctorModel from '../models/Doctor.js'
-import appointmentModel from '../models/Appointment.js'
-
-
+import doctorModel from "../models/Doctor.js";
+import appointmentModel from "../models/Appointment.js";
 
 //API to register user
 const registerUser = async (req, res) => {
@@ -111,63 +109,49 @@ const updateProfile = async (req, res) => {
   }
 };
 
-
 //Api to book appointment
 const bookAppointment = async (req, res) => {
   try {
     const { userId, docId, slotDate, slotTime } = req.body;
 
     // Validate ObjectId
-    if (!mongoose.isValidObjectId(userId)) {
-      return res.json({ success: 'false', message: 'Invalid userId format' });
+    if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(docId)) {
+      return res.json({
+        success: false,
+        message: "Invalid userId or docId format",
+      });
     }
 
-    if (!mongoose.isValidObjectId(docId)) {
-      return res.json({ success: 'false', message: 'Invalid docId format' });
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const doctorObjectId = new mongoose.Types.ObjectId(docId);
+
+    // Fetch doctor data
+    const docData = await doctorModel
+      .findById(doctorObjectId)
+      .select("-password");
+    if (!docData)
+      return res.json({ success: false, message: "Doctor not found" });
+
+    if (!docData.available)
+      return res.json({ success: false, message: "Doctor is not available" });
+
+    // Check if slot is already booked
+    let slots_booked = docData.slots_booked || {};
+    if (slots_booked[slotDate]?.includes(slotTime)) {
+      return res.json({ success: false, message: "Slot is not available" });
     }
 
-    // Convert userId and docId to ObjectId using 'new' keyword or mongoose.Types.ObjectId
-    const userObjectId = new mongoose.Types.ObjectId(userId);  // Using 'new' keyword
-    const doctorObjectId = new mongoose.Types.ObjectId(docId);  // Using 'new' keyword
+    // Add the slot if it's available
+    slots_booked[slotDate] = slots_booked[slotDate] || [];
+    slots_booked[slotDate].push(slotTime);
 
-    // Fetch doctor data using ObjectId
-    const docData = await doctorModel.findById(doctorObjectId).select('-password');
+    // Fetch user data
+    const userData = await userModel.findById(userObjectId).select("-password");
+    if (!userData)
+      return res.json({ success: false, message: "User not found" });
 
-    if (!docData) {
-      return res.json({ success: 'false', message: 'Doctor not found' });
-    }
-
-    // Check if doctor is available
-    if (!docData.available) {
-      return res.json({ success: 'false', message: 'Doctor is not available' });
-    }
-
-    let slots_booked = docData.slots_booked;
-
-    // Check if the slot is already booked
-    if (slots_booked[slotDate]) {
-      if (slots_booked[slotDate].includes(slotTime)) {
-        return res.json({ success: 'false', message: 'Slot is not available' });
-      } else {
-        // Add the slot if it's not already booked
-        slots_booked[slotDate].push(slotTime);
-      }
-    } else {
-      // Initialize the slot array for the specific date
-      slots_booked[slotDate] = [slotTime];
-    }
-
-    // Fetch user data using ObjectId
-    const userData = await userModel.findById(userObjectId).select('-password');
-    if (!userData) {
-      return res.json({ success: 'false', message: 'User not found' });
-    }
-
-    // Remove slots_booked field from doctor data before sending to appointment
-    delete docData.slots_booked;
-
-    // Prepare appointment data
-    const appointmentData = {
+    // Prepare and save appointment
+    const newAppointment = new appointmentModel({
       userId,
       docId,
       userData,
@@ -176,36 +160,72 @@ const bookAppointment = async (req, res) => {
       slotTime,
       slotDate,
       date: Date.now(),
-    };
+    });
 
-    // Create a new appointment
-    const newAppointment = new appointmentModel(appointmentData);
     await newAppointment.save();
-
-    // Update doctor's booked slots
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
-    res.json({ success: 'true', message: 'Appointment Booked' });
+    res.json({ success: true, message: "Appointment Booked" });
   } catch (error) {
-    console.log(error);
-    res.json({ success: 'false', message: error.message });
+    console.error("Error booking appointment:", error);
+    res.json({ success: false, message: error.message });
   }
 };
 
 // Api to get user appointments for frontend my-appointments page
-const listAppointment = async (req,res) => {
+const listAppointment = async (req, res) => {
   try {
-    const {userId} = req.body
-    const appointment = await appointmentModel.find({userId})
-    res.json({ success: 'true' , appointment})
+    const { userId } = req.query; // Get userId from query
+
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid userId format" });
+    }
+
+    const appointments = await appointmentModel
+      .find({ userId })
+      .sort({ date: -1 });
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.json({ success: false, message: error.message });
+  }
+};
+//Api to cancel  appointment
+const cancelAppointment = async (req, res) => {
+  try {
+    const { userId, appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    // Verify Appointment user
+    if (appointmentData.userId !== userId) {
+      return res.json({ success: false, message: "Unauthorized action" });
+    }
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      cancelled: true,
+    });
+    // Releasing doctor slot
+    const { docId, slotDate, slotTime } = appointmentData;
+    const doctorData = await doctorModel.findById(docId);
+    let slots_booked = doctorData.slots_booked;
+    slots_booked[slotDate] = slots_booked[slotDate].filter(
+      (e) => e !== slotTime
+    );
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+    res.json({ success: true, message: "Appointment Cancelled" });
   } catch (error) {
     console.log(error);
-    res.json({ success: 'false', message: error.message });
+    res.json({ success: false, message: error.message });
   }
-
-}  
-
-
-
-export {registerUser,loginUser,getProfile, updateProfile,bookAppointment,listAppointment}
-
+};
+export {
+  registerUser,
+  loginUser,
+  getProfile,
+  updateProfile,
+  bookAppointment,
+  listAppointment,
+  cancelAppointment,
+};

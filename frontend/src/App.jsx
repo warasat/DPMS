@@ -12,6 +12,8 @@ import Login from "./pages/Login";
 import MyProfile from "./pages/MyProfile";
 import Appointment from "./pages/Appointment";
 import MyAppointments from "./pages/MyAppointments";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import TopDoctors from "./components/TopDoctors";
 import HomeVisit from "./pages/HomeVisit";
 import ClinicVisit from "./pages/ClinicVisit";
@@ -36,6 +38,8 @@ function App() {
         <Route path="/my-profile/clinicvisit" element={<ClinicVisit />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
         <Route path="/appointment/:docId" element={<Appointment />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
       </Routes>
       <Footer />
     </Router>

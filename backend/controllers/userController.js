@@ -6,6 +6,11 @@ import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/Doctor.js";
 import appointmentModel from "../models/Appointment.js";
+import dotenv from "dotenv";
+dotenv.config();
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 //API to register user
 const registerUser = async (req, res) => {
@@ -220,6 +225,81 @@ const cancelAppointment = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// Api to make payment of appointment
+const createCheckoutSession = async (req, res) => {
+  try {
+    const { userId, appointment } = req.body;
+    // console.log(appointment);
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: appointment.docData.name,
+            },
+            unit_amount: appointment.amount * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        docName: appointment.docData.name,
+        appointmentId: appointment._id,
+      },
+      mode: "payment",
+      success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
+    });
+    res.json({ success: true, url: session.url });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const verifyPayment = async (req, res) => {
+  try {
+    const { session_id } = req.body;
+    if (!session_id) {
+      // console.log("❌ No session_id received");
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+
+    // console.log("🔄 Verifying Payment for Session ID:", session_id);
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    const appointmentId = session.metadata?.appointmentId || null;
+
+    // console.log("session: ", session);
+    // console.log("appointmentId: ", appointmentId);
+    // await appointmentModel.findByIdAndUpdate(
+    //   appointmentId,
+    //   {
+    //     payment: true,
+    //   },
+    //   { new: true }
+    // );
+
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment) {
+      // console.log("❌ Appointment not found");
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // Update payment status
+    appointment.payment = true;
+    await appointment.save();
+
+    // console.log("databses updated successgully");
+    res.json({ message: "Payment verified successfully" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -228,4 +308,6 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  createCheckoutSession,
+  verifyPayment,
 };

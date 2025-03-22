@@ -5,6 +5,12 @@ import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { loadStripe } from "@stripe/stripe-js";
+
+// eslint-disable-next-line no-unused-vars
+const stripePromise = loadStripe(
+  "pk_test_51QmeTLKtY3yUbKVRDEl13v4EUHofzECfnFGUMkSEFnwoUKGwrsAfBsMHKbIIfR28zS9ePy9jLo4GGQJ5WhUWivET00Lk0EYxSQ"
+);
 
 const MyAppointments = () => {
   const { backendUrl, token, userData, getDoctorsData } =
@@ -85,6 +91,30 @@ const MyAppointments = () => {
       toast.error(error.message);
     }
   };
+
+  const handleEnroll = async (appointment) => {
+    try {
+      console.log(appointment);
+      // eslint-disable-next-line no-unused-vars
+      const stripe = await stripePromise;
+
+      // eslint-disable-next-line no-unused-vars
+      const response = await axios.post(
+        `${backendUrl}/api/user/create-checkout-session`,
+        { userId: userData._id, appointment },
+        { headers: { token } }
+      );
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        console.error("❌ No URL received from backend!");
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      toast.error(error.message);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -126,12 +156,16 @@ const MyAppointments = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-2 justify-end">
-                {!item.cancelled && (
-                  <button className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-primary hover:text-white transition-all duration-300">
+                {!item.cancelled && !item.payment && (
+                  <button
+                    onClick={() => handleEnroll(item)}
+                    className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-primary hover:text-white transition-all duration-300"
+                  >
                     Pay Online
                   </button>
                 )}
-                {!item.cancelled && (
+
+                {!item.cancelled && !item.payment && (
                   <button
                     onClick={() => cancelAppointment(item._id)}
                     className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-600 hover:text-white transition-all duration-300"
@@ -140,11 +174,14 @@ const MyAppointments = () => {
                   </button>
                 )}
 
+                {item.payment && !item.cancelled && (
+                  <button className="text-sm text-green-500 text-center sm:min-w-48 py-2 border-green-500">
+                    ✅ Paid
+                  </button>
+                )}
+
                 {item.cancelled && (
-                  <button
-                    className="text-sm text-red-500 text-center sm:min-w-48 py-2 border-red-500
-                    "
-                  >
+                  <button className="text-sm text-red-500 text-center sm:min-w-48 py-2 border-red-500">
                     Appointment Cancelled
                   </button>
                 )}

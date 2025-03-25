@@ -71,7 +71,7 @@ function TopDoctors() {
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {doctors.slice(0, 8).map((item) => (
+        {doctors.slice(0, 18).map((item) => (
           <div
             onClick={() => navigate(`/appointment/${item._id}`)}
             key={item._id}
@@ -100,4 +100,3 @@ function TopDoctors() {
 }
 
 export default TopDoctors;
-

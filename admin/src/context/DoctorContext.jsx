@@ -34,6 +34,66 @@ const DoctorContextProvider = (props) => {
     }
   };
 
+  const completeAppointment = async (appointmentId) => {
+     try {
+      
+      const { data } = await axios.post(backendUrl + '/api/doctor/complete-appointment', {appointmentId}, {headers:{dToken}})
+      if(data.success){
+        toast.success(data.message)
+        getAppointments()
+      } else {
+        toast.error(data.message)
+      }
+     } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+     }
+  }
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+     
+     const { data } = await axios.post(backendUrl + '/api/doctor/cancel-appointment', {appointmentId}, {headers:{dToken}})
+     if(data.success){
+       toast.success(data.message)
+       getAppointments()
+     } else {
+       toast.error(data.message)
+     }
+    } catch (error) {
+     console.log(error);
+     toast.error(error.message);
+    }
+ }
+ const [dashData , setDashData] = useState(false)
+ const getDashData = async () => {
+  try {
+    const {data} = await axios.get(backendUrl + '/api/doctor/dashboard', {headers:{dToken}})
+    if(data.success){
+      setDashData(data.dashData)
+      console.log(data.dashData)
+    } else {
+      toast.error(data.message)
+    }
+  } catch (error) {
+    console.log(error);
+     toast.error(error.message);
+  }
+ }
+ const [profileData, setProfileData] = useState(false)
+ const getProfileData = async () => {
+  try {
+    const {data} = await axios.get(backendUrl + '/api/doctor/profile', {headers:{dToken}})
+    if(data.success){
+      setProfileData(data.profileData)
+      console.log(data.profileData)
+    }
+  } catch (error) {
+    console.log(error);
+    toast.error(error.message);
+  }
+ }
+
   const value = {
     dToken,
     setDToken,
@@ -41,6 +101,14 @@ const DoctorContextProvider = (props) => {
     appointments,
     setAppointments,
     getAppointments,
+    completeAppointment,
+    cancelAppointment,
+    dashData,
+    setDashData,
+    getDashData,
+    profileData,
+    setProfileData,
+    getProfileData
   };
   return (
     <DoctorContext.Provider value={value}>

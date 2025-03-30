@@ -5,9 +5,16 @@ import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import { useContext, useEffect } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
+import { assets } from "../../assets/assets";
 
 const DoctorAppointment = () => {
-  const { dToken, appointments, getAppointments } = useContext(DoctorContext);
+  const {
+    dToken,
+    appointments,
+    getAppointments,
+    completeAppointment,
+    cancelAppointment,
+  } = useContext(DoctorContext);
   const { calculateAge } = useContext(AppContext);
   useEffect(() => {
     if (dToken) {
@@ -23,8 +30,8 @@ const DoctorAppointment = () => {
           <p>#</p>
           <p>Patient</p>
           <p>Payment</p>
-          <p>Patient Age</p>
-          <p>Appintment Data and Time</p>
+          <p>Age</p>
+          <p>Data and Time</p>
           <p>Fees</p>
           <p>Action</p>
         </div>
@@ -47,16 +54,36 @@ const DoctorAppointment = () => {
             </div>
             <p>{calculateAge(item.userData?.dob)}</p>
             <p>
-              {item.slotDate} | {item.slotTime}
+              {item.slotDate} , {item.slotTime}
             </p>
             <p>${item.docData?.fees || "N/A"}</p>
+            {item.cancelled ? (
+              <p className="text-red-500 font-semibold text-s">Cancelled</p>
+            ) : item.isCompleted ? (
+              <p className="text-green-500 font-semibold text-s">Completed</p>
+            ) : (
+              <div className="flex">
+                <img
+                  onClick={() => cancelAppointment(item._id)}
+                  className="w-10 cursor-pointer"
+                  src={assets.cancel_icon}
+                  alt=""
+                />
+                <img
+                  onClick={() => completeAppointment(item._id)}
+                  className="w-10 cursor-pointer"
+                  src={assets.tick_icon}
+                  alt=""
+                />
+              </div>
+            )}
 
             {/* Tick or Cross icon based on appointment status */}
-            {item.status === "approved" ? (
-              <CheckCircleIcon className="text-green-500 w-6 h-6" />
+            {/* {item.status === "approved" ? (
+              <CheckCircleIcon className="text-green-500 w-6 h-6 " />
             ) : (
               <XCircleIcon className="text-red-500 w-6 h-6" />
-            )}
+            )} */}
           </div>
         ))}
       </div>

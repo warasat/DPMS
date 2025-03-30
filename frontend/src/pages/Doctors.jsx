@@ -84,8 +84,8 @@ function TopDoctors() {
             />
             <div className="mt-4">
               <div className="flex items-center space-x-2">
-                <p className="w-3 h-3 bg-green-500 rounded-full"></p>
-                <p className="text-green-600 font-medium">Available</p>
+                <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-gray-500'}  rounded-full`}></p>
+                <p className={`${item.available ? 'text-green-600' : 'text-gray-500'} font-medium`}>{item.available ? 'Available' : 'Not Available'}</p>
               </div>
               <div className="mt-2">
                 <p className="text-lg font-semibold">{item.name}</p>

@@ -62,9 +62,29 @@ useEffect(()=>{
                 <p className='text-gray-800'>{slotDateFormat(item.slotDate)}</p>
                </div>
                
-              {item.cancelled ? <p className='text-red-500 font-medium text-xs'>Cancelled</p> : <button onClick={()=>cancelAppointment(item._id)} className='bg-red-500 text-white rounded-lg py-1 px-3 text-xs hover:bg-red-600 transition-all duration-200'>
+              {/* {item.cancelled ? <p className='text-red-500 font-medium text-xs'>Cancelled</p> : <button onClick={()=>cancelAppointment(item._id)} className='bg-red-500 text-white rounded-lg py-1 px-3 text-xs hover:bg-red-600 transition-all duration-200'>
                 Cancel
-              </button> }
+              </button> } */}
+              <div className="flex items-center justify-center gap-2">
+              {item.cancelled ? (
+                <p className="text-red-500 font-medium text-xs">Cancelled</p>
+              ) : item.isCompleted ? (
+                <p className="text-green-500 font-medium text-xs">Completed</p>
+              ) : (
+                <button
+                  onClick={() => cancelAppointment(item._id)}
+                  className="bg-red-500 text-white rounded-lg py-1 px-3 text-xs hover:bg-red-600 transition-all duration-200"
+                >
+                  Cancel
+                </button>
+              )}
+              {/* <button className='bg-blue-500 text-white rounded-lg py-1 px-3 text-xs hover:bg-blue-600 transition-all duration-200'>
+                View
+              </button> */}
+              {/* <button className='bg-red-500 text-white rounded-lg py-1 px-3 text-xs hover:bg-red-600 transition-all duration-200'>
+                Cancel
+              </button> */}
+            </div>
               
               </div>
           ))}

@@ -37,17 +37,23 @@ const RelatedDoctors = ({ speciality, docId }) => {
             key={index}
             className="bg-white p-4 shadow-md rounded-lg cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all duration-300"
           >
+            
             <img
               src={item.image}
               alt={item.name}
               className="w-full h-60 bg-blue-200 object-cover rounded-md"
             />
             <div className="mt-4">
+            {/* <div className="flex items-center space-x-2">
+                <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-gray-500'}  rounded-full`}></p>
+                <p className={`${item.available ? 'text-green-600' : 'text-gray-500'} font-medium`}>{item.available ? 'Available' : 'Not Available'}</p>
+              </div> */}
               <div className="mt-2">
                 <p className="text-lg font-semibold">{item.name}</p>
                 <p className="text-gray-500">{item.speciality}</p>
               </div>
             </div>
+            
           </div>
         ))}
       </div>

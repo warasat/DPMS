@@ -9,6 +9,13 @@ import appointmentModel from "../models/Appointment.js";
 import dotenv from "dotenv";
 dotenv.config();
 import Stripe from "stripe";
+import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+// Required to handle __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -299,6 +306,68 @@ const verifyPayment = async (req, res) => {
     console.log(err);
   }
 };
+const generateReport = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    // Fetch the appointment and populate both doctor and patient data
+    const appointment = await appointmentModel
+      .findById(appointmentId)
+      .populate("docData") // Populate doctor details
+      .populate("userData"); // Populate patient (user) details
+
+    if (!appointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+
+    // Log populated data to verify prescription
+    console.log("Doctor Data:", appointment.docData);
+    console.log("Patient Data:", appointment.userData);
+
+    const doc = new PDFDocument();
+    const fileName = `report-${appointmentId}.pdf`;
+    const filePath = path.join(__dirname, `../reports/${fileName}`);
+
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    // 📝 Add doctor and patient data to the PDF
+    doc.fontSize(18).text("Appointment Report", { align: "center" });
+    doc.moveDown();
+
+    // Patient info
+    doc
+      .fontSize(14)
+      .text(`Patient Name: ${appointment.userData?.name || "N/A"}`);
+    doc.text(`Doctor Name: ${appointment.docData.name}`);
+    doc.text(`Speciality: ${appointment.docData.speciality}`);
+    doc.text(`Date: ${appointment.slotDate}`);
+    doc.text(`Time: ${appointment.slotTime}`);
+    doc.moveDown();
+
+    // Add the prescription information for the doctor
+    const prescription =
+      appointment.docData.prescription || "No prescription available";
+    doc.fontSize(14).text(`Prescription: ${prescription}`);
+    doc.moveDown();
+
+    doc.text("Thank you for using our service.", { align: "left" });
+
+    doc.end();
+
+    stream.on("finish", () => {
+      res.json({
+        success: true,
+        reportUrl: `${process.env.SERVER_URL}/reports/${fileName}`,
+      });
+    });
+  } catch (err) {
+    console.error("Report generation error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
 export {
   registerUser,
@@ -310,4 +379,5 @@ export {
   cancelAppointment,
   createCheckoutSession,
   verifyPayment,
+  generateReport,
 };

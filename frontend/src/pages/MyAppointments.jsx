@@ -71,6 +71,32 @@ const MyAppointments = () => {
       setLoading(false);
     }
   };
+  const handleGenerateReport = async (appointmentId) => {
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/user/generate-report`,
+        { appointmentId },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        toast.success("Report generated successfully");
+
+        // Download the PDF
+        const link = document.createElement("a");
+        link.href = response.data.reportUrl;
+        link.download = `Appointment-Report-${appointmentId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        toast.error("Failed to generate report");
+      }
+    } catch (error) {
+      toast.error("Error generating report");
+      console.error("Generate report error:", error);
+    }
+  };
 
   const cancelAppointment = async (appointmentId) => {
     try {
@@ -156,7 +182,7 @@ const MyAppointments = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-2 justify-end">
-                {!item.cancelled && !item.payment &&  !item.isCompleted &&(
+                {!item.cancelled && !item.payment && !item.isCompleted && (
                   <button
                     onClick={() => handleEnroll(item)}
                     className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-primary hover:text-white transition-all duration-300"
@@ -165,7 +191,7 @@ const MyAppointments = () => {
                   </button>
                 )}
 
-                {!item.cancelled && !item.payment && !item.isCompleted &&(
+                {!item.cancelled && !item.payment && !item.isCompleted && (
                   <button
                     onClick={() => cancelAppointment(item._id)}
                     className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-600 hover:text-white transition-all duration-300"
@@ -174,20 +200,30 @@ const MyAppointments = () => {
                   </button>
                 )}
 
-                {item.payment && !item.cancelled && !item.isCompleted &&(
-                  <button className="text-sm text-green-500 text-center sm:min-w-48 py-2 border-green-500">
-                    ✅ Paid
-                  </button>
+                {item.payment && !item.cancelled && (
+                  <>
+                    <button className="text-sm text-green-500 border-green-500 py-2">
+                      ✅ Paid
+                    </button>
+                    <button
+                      onClick={() => handleGenerateReport(item._id)}
+                      className="text-sm text-blue-500 border-blue-500 py-2"
+                    >
+                      Generate Report
+                    </button>
+                  </>
                 )}
 
-                {item.cancelled && !item.isCompleted &&(
+                {item.cancelled && !item.isCompleted && (
                   <button className="text-sm text-red-500 text-center sm:min-w-48 py-2 border-red-500">
                     Appointment Cancelled
                   </button>
                 )}
-                {
-                  item.isCompleted && <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 ">Completed</button>
-                }
+                {item.isCompleted && (
+                  <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 ">
+                    Completed
+                  </button>
+                )}
               </div>
             </div>
           ))

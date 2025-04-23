@@ -10,6 +10,14 @@ import Prescription from "../models/Prescription.js";
 import dotenv from "dotenv";
 dotenv.config();
 import Stripe from "stripe";
+import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+// Required to handle __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -305,6 +313,143 @@ const verifyPayment = async (req, res) => {
     console.log(err);
   }
 };
+// API to save illness details
+const saveIllnessDetails = async (req, res) => {
+  try {
+    const { appointmentId, symptoms, history, medications, description } = req.body;
+
+    // Validate required fields
+    if (!appointmentId || !symptoms || !history || !medications || !description) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Find the appointment by ID
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    // Check if the appointment has been paid
+    if (!appointment.payment) {
+      return res.status(400).json({ success: false, message: "Payment not completed yet" });
+    }
+
+    // Update the illness details for the appointment
+    appointment.illnessDetails = { symptoms, history, medications, description };
+    await appointment.save();
+
+    res.status(200).json({ success: true, message: "Illness details saved successfully" });
+  } catch (error) {
+    console.error("Error saving illness details:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+// Get Prescription on the appointment page 
+// userController.js
+
+const getPrescriptionDetails = async (req, res) => {
+  try {
+    const { appointmentId } = req.params; // Fetch the appointmentId from the URL params
+
+  
+
+    // Find the prescription based on the appointmentId
+    const prescription = await Prescription.findOne({ appointmentId });
+
+    if (!prescription) {
+      return res.status(404).json({ success: false, message: "Prescription not found" });
+    }
+
+    // Return the prescription details
+    return res.status(200).json({
+      success: true,
+      prescription: {
+        description: prescription.prescriptionDetails?.description, // Get the description
+        medicineDetails: {
+          medicine1: prescription.prescriptionDetails?.medicine1,
+          medicine2: prescription.prescriptionDetails?.medicine2,
+          medicine3: prescription.prescriptionDetails?.medicine3
+        },
+        doctorDetails: {
+          name: prescription.doctorName,
+          age: prescription.doctorAge
+        },
+        patientDetails: {
+          name: prescription.patientName,
+          age: prescription.patientAge
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching prescription details:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+const generateReport = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    // Fetch the appointment and populate both doctor and patient data
+    const appointment = await appointmentModel
+      .findById(appointmentId)
+      .populate("docData") // Populate doctor details
+      .populate("userData"); // Populate patient (user) details
+
+    if (!appointment) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Appointment not found" });
+    }
+
+    // Log populated data to verify prescription
+    console.log("Doctor Data:", appointment.docData);
+    console.log("Patient Data:", appointment.userData);
+
+    const doc = new PDFDocument();
+    const fileName = `report-${appointmentId}.pdf`;
+    const filePath = path.join(__dirname, `../reports/${fileName}`);
+
+    const stream = fs.createWriteStream(filePath);
+    doc.pipe(stream);
+
+    // 📝 Add doctor and patient data to the PDF
+    doc.fontSize(18).text("Appointment Report", { align: "center" });
+    doc.moveDown();
+
+    // Patient info
+    doc
+      .fontSize(14)
+      .text(`Patient Name: ${appointment.userData?.name || "N/A"}`);
+    doc.text(`Doctor Name: ${appointment.docData.name}`);
+    doc.text(`Speciality: ${appointment.docData.speciality}`);
+    doc.text(`Date: ${appointment.slotDate}`);
+    doc.text(`Time: ${appointment.slotTime}`);
+    doc.moveDown();
+
+    // Add the prescription information for the doctor
+    const prescription =
+      appointment.docData.prescription || "No prescription available";
+    doc.fontSize(14).text(`Prescription: ${prescription}`);
+    doc.moveDown();
+
+    doc.text("Thank you for using our service.", { align: "left" });
+
+    doc.end();
+
+    stream.on("finish", () => {
+      res.json({
+        success: true,
+        reportUrl: `${process.env.SERVER_URL}/reports/${fileName}`,
+      });
+    });
+  } catch (err) {
+    console.error("Report generation error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 export {
   registerUser,
@@ -316,4 +461,9 @@ export {
   cancelAppointment,
   createCheckoutSession,
   verifyPayment,
+
+  saveIllnessDetails,
+  getPrescriptionDetails,
+  generateReport,
+
 };

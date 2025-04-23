@@ -17,6 +17,10 @@ import PaymentCancel from "./pages/PaymentCancel";
 import TopDoctors from "./components/TopDoctors";
 import HomeVisit from "./pages/HomeVisit";
 import ClinicVisit from "./pages/ClinicVisit";
+// import ForgotPassword from "./pages/ForgotPassword";
+// import ResetPassword from "./pages/ResetPassword";
+import IllnessDetails from "./pages/illnessDetail";
+import PrescriptionModal from "./pages/PrescriptionModal"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -40,6 +44,10 @@ function App() {
         <Route path="/appointment/:docId" element={<Appointment />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-cancel" element={<PaymentCancel />} />
+        <Route path="/appointment/illness-details/:appointmentId" element={<IllnessDetails />} />
+        <Route path="/appointment/get-prescription/:appointmentId" element={<PrescriptionModal/>} />
+        {/* <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} /> */}
       </Routes>
       <Footer />
     </Router>

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import appointmentModel from "../models/Appointment.js";
+import Prescription from "../models/Prescription.js";
 dotenv.config();
 
 const changeAvailability = async (req, res) => {
@@ -145,6 +146,86 @@ const updateDoctorProfile = async (req, res) => {
     res.json({ success: "false", message: error.message });
   }
 };
+// API to get illness details for a specific appointment
+const getIllnessDetails = async (req, res) => {
+  try {
+    const { appointmentId } = req.params; // Fetch the appointmentId from the URL params
+
+    // Find the appointment by ID
+    const appointment = await appointmentModel.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    // Return the illness details of the found appointment
+    return res.status(200).json({
+      success: true,
+      appointment: {
+        illnessDetails: appointment.illnessDetails,  // Return only the illness details
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching illness details:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+// Api to post prescription details for specfic appointment
+const savePrescriptionDetails = async (req, res) => {
+  try {
+    const { appointmentId, patientDetails, doctorDetails, prescriptionDetails } = req.body;
+
+    // Validate required fields
+    if (
+      !appointmentId ||
+      !patientDetails ||
+      !doctorDetails ||
+      !prescriptionDetails ||
+      !patientDetails.name ||
+      !patientDetails.age ||
+      !doctorDetails.name ||
+      !doctorDetails.age ||
+      !prescriptionDetails.medicine1 ||
+      !prescriptionDetails.medicine2 ||
+      !prescriptionDetails.medicine3 ||
+      !prescriptionDetails.description
+    ) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Find the appointment by ID to ensure it exists
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    // Create a new prescription object
+    const newPrescription = new Prescription({
+      appointmentId,
+      patientName: patientDetails.name,
+      patientAge: patientDetails.age,
+      doctorName: doctorDetails.name,
+      doctorAge: doctorDetails.age,
+      prescriptionDetails: {
+        medicine1: prescriptionDetails.medicine1,
+        medicine2: prescriptionDetails.medicine2,
+        medicine3: prescriptionDetails.medicine3,
+        description: prescriptionDetails.description,
+      },
+    });
+
+    // Save the prescription to the database
+    await newPrescription.save();
+
+    // Return success response
+    res.status(200).json({ success: true, message: "Prescription details saved successfully" });
+  } catch (error) {
+    console.error("Error saving prescription details:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 export {
   changeAvailability,
   doctorList,
@@ -155,4 +236,6 @@ export {
   doctorDashboard,
   doctorProfile,
   updateDoctorProfile,
+  getIllnessDetails,
+  savePrescriptionDetails,
 };

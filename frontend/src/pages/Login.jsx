@@ -209,6 +209,15 @@ const Login = () => {
             </span>
           </p>
         )}
+        <p>
+  {/* <span
+    onClick={() => navigate('/forgot-password')} // Redirect to Forgot Password page
+    className="text-primary underline cursor-pointer"
+  >
+    Forgot Password?
+  </span> */}
+</p>
+
       </div>
     </form>
   );

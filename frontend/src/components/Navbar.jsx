@@ -167,47 +167,34 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import { AppContext } from "../context/AppContext"; // Ensure you import AppContext
+import { AppContext } from "../context/AppContext"; // Access token, userData from context
 import { assets } from "../assets/assets";
 
 function Navbar() {
-  const { token, setToken, userData } = useContext(AppContext); // Access token from context
+  const { token, setToken, userData } = useContext(AppContext);
   const [isSticky, setIsSticky] = useState(false);
-  const [profilePic, setProfilePic] = useState(""); // State for the profile picture
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Track scroll position with useEffect
+  // Scroll sticky navbar effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
+      setIsSticky(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
 
-    // Check if user is logged in
-    if (token) {
-      setProfilePic(assets.profile_pic); // Set the profile picture if logged in
-    }
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [token]); // Only rerun when token changes
-
-  // Handle logout
+  // 🔒 Logout Logic — clear token and go to login page
   const handleLogout = () => {
-    setToken(null); // Clear token from context
-    localStorage.removeItem("token"); // Remove the token from localStorage
-    navigate("/"); // Redirect to the home page
+    setToken(null); // Clear token in context
+    localStorage.removeItem("token"); // Clear from localStorage
+    navigate("/login"); // Redirect to login page
   };
 
-  // Don't render navbar on login or logout page
+  // Don't show navbar on login or logout pages
   if (location.pathname === "/login" || location.pathname === "/logout") {
     return null;
   }
@@ -242,17 +229,19 @@ function Navbar() {
               className="menu menu-sm dropdown-content bg-blue-800 rounded-box z-[1] mt-3 w-52 p-2 shadow text-white"
             >
               <li>
-                <a>Home</a>
+                <NavLink to="/">Home</NavLink>
               </li>
               <li>
-                <a>All Doctors</a>
+                <NavLink to="/doctors">All Doctors</NavLink>
               </li>
               <li>
-                <a>About</a>
+                <NavLink to="/about">About</NavLink>
               </li>
             </ul>
           </div>
-          <a className="btn btn-ghost text-xl">Doctor & Patient</a>
+          <NavLink to="/" className="btn btn-ghost text-xl">
+            Doctor & Patient
+          </NavLink>
         </div>
 
         <div className="navbar-center hidden lg:flex">
@@ -263,17 +252,17 @@ function Navbar() {
               </NavLink>
             </li>
             <li>
-              <NavLink to="doctors" className="hover:bg-gray-400">
+              <NavLink to="/doctors" className="hover:bg-gray-400">
                 All Doctors
               </NavLink>
             </li>
             <li>
-              <NavLink to="about" className="hover:bg-gray-400">
+              <NavLink to="/about" className="hover:bg-gray-400">
                 About
               </NavLink>
             </li>
             <li>
-              <NavLink to="contact" className="hover:bg-gray-400">
+              <NavLink to="/contact" className="hover:bg-gray-400">
                 Contact
               </NavLink>
             </li>
@@ -281,7 +270,7 @@ function Navbar() {
         </div>
 
         <div className="navbar-end">
-          {!token && userData ? (
+          {!token ? (
             <NavLink
               to="/login"
               className="btn bg-white text-blue-900 hover:bg-gray-200"
@@ -291,29 +280,20 @@ function Navbar() {
           ) : (
             <div className="flex items-center space-x-2 cursor-pointer group relative">
               <img
-                src={userData.image}
+                src={userData?.image || assets.profile_pic}
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
               <img src={assets.dropdown_icon} alt="Dropdown Icon" />
-              <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block ">
+              <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block">
                 <div className="min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4">
-                  <NavLink
-                    to="/my-profile"
-                    className="hover:text-black cursor-pointer"
-                  >
+                  <NavLink to="/my-profile" className="hover:text-black">
                     My profile
                   </NavLink>
-                  <NavLink
-                    to="/my-appointments"
-                    className="hover:text-black cursor-pointer"
-                  >
+                  <NavLink to="/my-appointments" className="hover:text-black">
                     My appointments
                   </NavLink>
-                  <button
-                    className="hover:text-black cursor-pointer "
-                    onClick={handleLogout} // Handle logout
-                  >
+                  <button onClick={handleLogout} className="hover:text-black">
                     Log out
                   </button>
                 </div>

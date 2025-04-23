@@ -46,6 +46,7 @@
 
 // export default TopDoctors;
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 import React, { useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext"; // Import AppContext to access doctors data
 import { useNavigate } from "react-router-dom";
@@ -54,12 +55,10 @@ function TopDoctors() {
   const { doctors, getDoctorsData } = useContext(AppContext); // Access doctors from AppContext
   const navigate = useNavigate();
 
-  // Fetch doctors data on component mount
+  // ✅ Always fetch doctors data on component mount
   useEffect(() => {
-    if (doctors.length === 0) {
-      getDoctorsData(); // Fetch doctors data if it's not already loaded
-    }
-  }, [doctors, getDoctorsData]);
+    getDoctorsData();
+  }, []); // Only on mount
 
   return (
     <div className="p-6">
@@ -69,6 +68,16 @@ function TopDoctors() {
       <p className="text-gray-600 mb-6 text-center">
         Simply browse through our extensive list of trusted doctors.
       </p>
+
+      {/* Optional Refresh Button */}
+      {/* <div className="flex justify-center mb-4">
+        <button
+          onClick={getDoctorsData}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Refresh Doctor List
+        </button>
+      </div> */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {doctors.slice(0, 18).map((item) => (
@@ -84,8 +93,18 @@ function TopDoctors() {
             />
             <div className="mt-4">
               <div className="flex items-center space-x-2">
-                <p className={`w-2 h-2 ${item.available ? 'bg-green-500' : 'bg-gray-500'}  rounded-full`}></p>
-                <p className={`${item.available ? 'text-green-600' : 'text-gray-500'} font-medium`}>{item.available ? 'Available' : 'Not Available'}</p>
+                <p
+                  className={`w-2 h-2 ${
+                    item.available ? "bg-green-500" : "bg-gray-500"
+                  } rounded-full`}
+                ></p>
+                <p
+                  className={`${
+                    item.available ? "text-green-600" : "text-gray-500"
+                  } font-medium`}
+                >
+                  {item.available ? "Available" : "Not Available"}
+                </p>
               </div>
               <div className="mt-2">
                 <p className="text-lg font-semibold">{item.name}</p>

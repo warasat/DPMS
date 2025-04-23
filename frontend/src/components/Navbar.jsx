@@ -293,7 +293,10 @@ function Navbar() {
                   <NavLink to="/my-appointments" className="hover:text-black">
                     My appointments
                   </NavLink>
-                  <button onClick={handleLogout} className="hover:text-black">
+                  <button
+                    onClick={handleLogout}
+                    className="hover:text-black pr-24"
+                  >
                     Log out
                   </button>
                 </div>

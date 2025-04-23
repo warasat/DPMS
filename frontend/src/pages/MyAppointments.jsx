@@ -11,9 +11,6 @@
 // import { FaSearch } from "react-icons/fa"; // Import search icon from react-icons
 // //import PrescriptionModal from './PrescriptionModal';
 
-
-
-
 // const stripePromise = loadStripe(
 //   "pk_test_51QmeTLKtY3yUbKVRDEl13v4EUHofzECfnFGUMkSEFnwoUKGwrsAfBsMHKbIIfR28zS9ePy9jLo4GGQJ5WhUWivET00Lk0EYxSQ"
 // );
@@ -25,7 +22,7 @@
 //   const [loading, setLoading] = useState(true);
 //   const [searchTerm, setSearchTerm] = useState(""); // State for search term
 //   // const [showModal, setShowModal] = useState(false);  // For modal visibility
-//   // const [prescriptionData, setPrescriptionData] = useState(null);  
+//   // const [prescriptionData, setPrescriptionData] = useState(null);
 //   const navigate = useNavigate();
 //   const months = [
 //     "Jan",
@@ -107,7 +104,6 @@
 //       // eslint-disable-next-line no-unused-vars
 //       const stripe = await stripePromise;
 
-      
 //       const response = await axios.post(
 //         `${backendUrl}/api/user/create-checkout-session`,
 //         { userId: userData._id, appointment },
@@ -135,7 +131,6 @@
 //   if (loading) {
 //     return <div>Loading...</div>;
 //   }
-  
 
 //   return (
 //     <div>
@@ -230,7 +225,7 @@
 //                     Fill Health Record
 //                   </button>
 //                 )}
-                
+
 //                   {/* View Prescription button */}
 //                 {!item.cancelled && item.isCompleted && item.payment && (
 //                   <button
@@ -251,8 +246,6 @@
 
 // export default MyAppointments;
 
-
-
 /* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
@@ -261,7 +254,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { loadStripe } from "@stripe/stripe-js";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa"; // Import search icon from react-icons
 
 const stripePromise = loadStripe(
@@ -308,9 +301,12 @@ const MyAppointments = () => {
   useEffect(() => {
     // Filter appointments based on the search term
     if (searchTerm) {
-      const filtered = appointments.filter((item) =>
-        item.docData.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.docData.speciality.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = appointments.filter(
+        (item) =>
+          item.docData.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.docData.speciality
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
       setFilteredAppointments(filtered);
     } else {
@@ -397,6 +393,7 @@ const MyAppointments = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
+
   const handleGenerateReport = async (appointmentId) => {
     try {
       const response = await axios.post(
@@ -424,21 +421,20 @@ const MyAppointments = () => {
     }
   };
 
-
   return (
     <div>
-      <p className="pb-3 mt-12 font-medium text-zinc-700 border-b">
-        My Appointments
-      </p>
-      {/* Search Bar */}
-      <div className="flex justify-end mb-6 mt-4">
-        <div className="relative w-1/4">
+      {/* Header and Search Row */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-12 mb-6 gap-4 border-b pb-3">
+        <p className="text-lg sm:text-xl font-semibold text-zinc-700">
+          My Appointments
+        </p>
+        <div className="relative w-full sm:w-1/4 ml-auto">
           <input
             type="text"
-            placeholder="Search by doctor name or specialty..."
+            placeholder="Search"
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Update the search term
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
@@ -465,6 +461,13 @@ const MyAppointments = () => {
                   {item.docData.name}
                 </p>
                 <p>{item.docData.speciality}</p>
+
+                {/* Doctor Email */}
+                <p className="text-sm text-zinc-700">
+                  <span className="font-medium text-neutral-700">Email:</span>{" "}
+                  {item.docData.email}
+                </p>
+
                 <p className="text-zinc-700 font-medium mt-1">Address:</p>
                 <p className="text-xs">{item.docData.address.line1}</p>
                 <p className="text-xs">{item.docData.address.line2}</p>
@@ -496,16 +499,43 @@ const MyAppointments = () => {
 
                 {item.payment && !item.cancelled && !item.isCompleted && (
                   <>
-                  <button className="text-sm text-green-500 text-center sm:min-w-48 py-2 border-green-500">
-                    ✅ Paid
-                  </button>
-                  <button
-                      onClick={() => handleGenerateReport(item._id)}
-                      className="text-sm text-blue-500 border-blue-500 py-2"
+                    {/* Flex container with minimal gap */}
+                    {/* Paid button */}
+                    <button className="text-sm text-green-500 text-center sm:min-w-48 py-2 mr-2 border-green-500">
+                      ✅ Paid
+                    </button>
+                    {/* Call Now button */}
+                    <button
+                      onClick={() => {
+                        window.open(
+                          "https://meet.google.com/landing",
+                          "_blank"
+                        );
+                      }}
+                      className="mr-2 text-sm text-yellow-500 border-yellow-500 py-2 hover:bg-red-600 hover:text-white transition-all duration-300 rounded-md"
                     >
-                      Generate Report
+                      Call Now
                     </button>
 
+                    {/* Generate Report button */}
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleGenerateReport(item._id)}
+                        className="text-sm  text-pink-600  py-3 hover:bg-pink-600  hover:text-white  px-10 mt-2 border rounded-md"
+                      >
+                        Generate Report
+                      </button>
+                    </div>
+
+                    {/* Fill Health Record button */}
+                    <div className="flex justify-center mt-2">
+                      <button
+                        onClick={() => handleIllnessDetails(item._id)}
+                        className="text-sm text-yellow-500 text-center py-3 px-10 border hover:bg-yellow-500 hover:text-white transition-all duration-300 rounded-md"
+                      >
+                        Fill Health Record
+                      </button>
+                    </div>
                   </>
                 )}
 
@@ -520,21 +550,11 @@ const MyAppointments = () => {
                   </button>
                 )}
 
-                {/* Button to navigate to illness details page */}
-                {item.payment && !item.cancelled && !item.isCompleted && (
-                  <button
-                    onClick={() => handleIllnessDetails(item._id)}
-                    className="text-sm text-ye-500 text-center sm:min-w-48 py-2 border hover:bg-yellow-500 hover:text-white transition-all duration-300"
-                  >
-                    Fill Health Record
-                  </button>
-                )}
-                
                 {/* View Prescription button */}
                 {!item.cancelled && item.isCompleted && item.payment && (
                   <button
                     onClick={() => fetchPrescriptionData(item._id)} // Trigger fetch for prescription
-                    className="text-sm text-blue-500 text-center sm:min-w-48 py-2 border hover:bg-blue-500 hover:text-white transition-all duration-300"
+                    className="rounded-md text-sm text-blue-500 text-center sm:min-w-48 py-2 border hover:bg-blue-500 hover:text-white transition-all duration-300"
                   >
                     View Prescription
                   </button>

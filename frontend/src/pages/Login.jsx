@@ -98,7 +98,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import axios from 'axios';
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
 
@@ -113,32 +113,58 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    
+
     try {
       if (state === "Sign Up") {
         // Sign-up request to backend
-        const { data } = await axios.post(backendUrl + "/api/user/register", { name, email, password });
+        const { data } = await axios.post(backendUrl + "/api/user/register", {
+          name,
+          email,
+          password,
+        });
+
         if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token); // Update context with new token
           toast.success("Account created successfully!");
+          navigate("/"); // Optional: redirect after sign up
         } else {
-          toast.error(data.message);
+          toast.error(data.message || "Sign up failed.");
         }
       } else {
         // Login request to backend
-        const { data } = await axios.post(backendUrl + "/api/user/login", { email, password });
-        if (data.success) {
+        const response = await axios.post(backendUrl + "/api/user/login", {
+          email,
+          password,
+        });
+
+        const data = response.data;
+
+        if (response.status === 200 && data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token); // Update context with new token
           toast.success("Logged in successfully!");
-          navigate('/'); // Redirect to home page after successful login
-        } else {
-          toast.error(data.message);
+          navigate("/"); // Redirect to home page after successful login
         }
       }
     } catch (error) {
-      toast.error(error.message);
+      // Handle login/signup errors based on status code
+      if (
+        error.response &&
+        error.response.status === 401 &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error("Incorrect credentials"); // for login
+      } else if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message); // general error from backend
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -149,7 +175,8 @@ const Login = () => {
           {state === "Sign Up" ? "Create Account" : "Login"}
         </p>
         <p>
-          Please {state === "Sign Up" ? "sign up" : "log in"} to Book Appointment
+          Please {state === "Sign Up" ? "sign up" : "log in"} to Book
+          Appointment
         </p>
 
         {state === "Sign Up" && (
@@ -210,18 +237,16 @@ const Login = () => {
           </p>
         )}
         <p>
-  {/* <span
+          {/* <span
     onClick={() => navigate('/forgot-password')} // Redirect to Forgot Password page
     className="text-primary underline cursor-pointer"
   >
     Forgot Password?
   </span> */}
-</p>
-
+        </p>
       </div>
     </form>
   );
 };
 
 export default Login;
-

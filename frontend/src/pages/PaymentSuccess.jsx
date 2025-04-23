@@ -39,7 +39,7 @@ const PaymentSuccess = () => {
         // Redirect after 5 seconds
         setTimeout(() => {
           navigate("/my-appointments");
-        }, 5000);
+        });
       } catch (error) {
         console.error(
           "❌ Payment Verification Error:",

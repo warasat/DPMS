@@ -345,6 +345,32 @@ const MyAppointments = () => {
       setLoading(false);
     }
   };
+  const handleGenerateReport = async (appointmentId) => {
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/user/generate-report`,
+        { appointmentId },
+        { headers: { token } }
+      );
+
+      if (response.data.success) {
+        toast.success("Report generated successfully");
+
+        // Download the PDF
+        const link = document.createElement("a");
+        link.href = response.data.reportUrl;
+        link.download = `Appointment-Report-${appointmentId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        toast.error("Failed to generate report");
+      }
+    } catch (error) {
+      toast.error("Error generating report");
+      console.error("Generate report error:", error);
+    }
+  };
 
   const cancelAppointment = async (appointmentId) => {
     try {
@@ -467,7 +493,7 @@ const MyAppointments = () => {
                   </button>
                 )}
 
-                {item.payment && !item.cancelled && !item.isCompleted && (
+                {item.payment && !item.cancelled && !item.isCompleted &&(
                   <button className="text-sm text-green-500 text-center sm:min-w-48 py-2 border-green-500">
                     ✅ Paid
                   </button>
@@ -478,31 +504,9 @@ const MyAppointments = () => {
                     Appointment Cancelled
                   </button>
                 )}
-                {item.isCompleted && (
-                  <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 ">
-                    Completed
-                  </button>
-                )}
-
-                {/* Button to navigate to illness details page */}
-                {item.payment && !item.cancelled && !item.isCompleted && (
-                  <button
-                    onClick={() => handleIllnessDetails(item._id)}
-                    className="text-sm text-yellow-500 text-center sm:min-w-48 py-2 border hover:bg-yellow-500 hover:text-white transition-all duration-300"
-                  >
-                    Fill Health Record
-                  </button>
-                )}
-                
-                {/* View Prescription button */}
-                {!item.cancelled && item.isCompleted && item.payment && (
-                  <button
-                    onClick={() => fetchPrescriptionData(item._id)} // Trigger fetch for prescription
-                    className="text-sm text-blue-500 text-center sm:min-w-48 py-2 border hover:bg-blue-500 hover:text-white transition-all duration-300"
-                  >
-                    View Prescription
-                  </button>
-                )}
+                {
+                  item.isCompleted && <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 ">Completed</button>
+                }
               </div>
             </div>
           ))

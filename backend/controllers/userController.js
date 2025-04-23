@@ -11,7 +11,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import Stripe from "stripe";
 
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 //API to register user
@@ -306,80 +305,6 @@ const verifyPayment = async (req, res) => {
     console.log(err);
   }
 };
-// API to save illness details
-const saveIllnessDetails = async (req, res) => {
-  try {
-    const { appointmentId, symptoms, history, medications, description } = req.body;
-
-    // Validate required fields
-    if (!appointmentId || !symptoms || !history || !medications || !description) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
-    }
-
-    // Find the appointment by ID
-    const appointment = await appointmentModel.findById(appointmentId);
-    if (!appointment) {
-      return res.status(404).json({ success: false, message: "Appointment not found" });
-    }
-
-    // Check if the appointment has been paid
-    if (!appointment.payment) {
-      return res.status(400).json({ success: false, message: "Payment not completed yet" });
-    }
-
-    // Update the illness details for the appointment
-    appointment.illnessDetails = { symptoms, history, medications, description };
-    await appointment.save();
-
-    res.status(200).json({ success: true, message: "Illness details saved successfully" });
-  } catch (error) {
-    console.error("Error saving illness details:", error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
-// Get Prescription on the appointment page 
-// userController.js
-
-const getPrescriptionDetails = async (req, res) => {
-  try {
-    const { appointmentId } = req.params; // Fetch the appointmentId from the URL params
-
-  
-
-    // Find the prescription based on the appointmentId
-    const prescription = await Prescription.findOne({ appointmentId });
-
-    if (!prescription) {
-      return res.status(404).json({ success: false, message: "Prescription not found" });
-    }
-
-    // Return the prescription details
-    return res.status(200).json({
-      success: true,
-      prescription: {
-        description: prescription.prescriptionDetails?.description, // Get the description
-        medicineDetails: {
-          medicine1: prescription.prescriptionDetails?.medicine1,
-          medicine2: prescription.prescriptionDetails?.medicine2,
-          medicine3: prescription.prescriptionDetails?.medicine3
-        },
-        doctorDetails: {
-          name: prescription.doctorName,
-          age: prescription.doctorAge
-        },
-        patientDetails: {
-          name: prescription.patientName,
-          age: prescription.patientAge
-        }
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching prescription details:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-};
-
-
 
 export {
   registerUser,
@@ -391,6 +316,4 @@ export {
   cancelAppointment,
   createCheckoutSession,
   verifyPayment,
-  saveIllnessDetails,
-  getPrescriptionDetails
 };

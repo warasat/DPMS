@@ -7,6 +7,12 @@ import connectCloudinary from "./config/cloudinary.js";
 import adminRouter from "./routes/adminRoute.js";
 import doctorRouter from "./routes/doctorRoute.js";
 import userRouter from "./routes/userRoute.js";
+import path from "path";
+import { fileURLToPath } from "url";
+// ESM setup
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 dotenv.config();
 connectDB(); // Connect to MongoDB
 connectCloudinary();
@@ -25,12 +31,12 @@ app.use(cookieParser());
 // API ENDPOINTS
 app.use("/api/admin", adminRouter);
 app.use("/api/doctor", doctorRouter);
-app.use("/api/user",userRouter)
+app.use("/api/user", userRouter);
 // Test Route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
-
+app.use("/reports", express.static(path.join(__dirname, "reports")));
 // Listen on PORT
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

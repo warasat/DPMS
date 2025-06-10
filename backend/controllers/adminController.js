@@ -261,25 +261,56 @@ const appointmentCancel = async (req, res) => {
 };
 
 //Api to get  dasboard data for admin pannel
-const adminDashboard = async (req,res) => {
+// const adminDashboard = async (req,res) => {
+//   try {
+//     const doctors = await doctorModel.find({})
+//     const users = await userModel.find({})
+//     const appointments = await appointmentModel.find({})
+
+//     const dashData = {
+//       doctors: doctors.length,
+//       appointments: appointments.length,
+//       patient: users.length,
+//       latestAppointments: appointments.reverse().slice(0,5)
+//     }
+//     res.json({success:'true' , dashData})
+    
+//   } catch (error) {
+//     console.log(error);
+//     res.json({ success: false, message: error.message });
+//   }
+// Api to get dashboard data for admin panel
+const adminDashboard = async (req, res) => {
   try {
-    const doctors = await doctorModel.find({})
-    const users = await userModel.find({})
-    const appointments = await appointmentModel.find({})
+    const doctors = await doctorModel.find({});
+    const users = await userModel.find({});
+    
+    // Fetch all appointments
+    const appointments = await appointmentModel.find({});
+    
+    // Count completed appointments
+    const totalCompletedAppointments = await appointmentModel.countDocuments({ isCompleted: true });
+    
+    // Count cancelled appointments
+    const totalCancelledAppointments = await appointmentModel.countDocuments({ cancelled: true });
 
     const dashData = {
       doctors: doctors.length,
       appointments: appointments.length,
       patient: users.length,
-      latestAppointments: appointments.reverse().slice(0,5)
-    }
-    res.json({success:'true' , dashData})
+      totalCompletedAppointments,
+      totalCancelledAppointments,
+      latestAppointments: appointments.reverse().slice(0, 5)
+    };
     
+    res.json({ success: 'true', dashData });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
-}
+};
+
+
 
 
 export { addDoctor, loginAdmin, allDcotors, allAppointments, appointmentCancel, adminDashboard };

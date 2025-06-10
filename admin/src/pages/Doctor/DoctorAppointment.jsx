@@ -1,12 +1,12 @@
-/* eslint-disable no-unused-vars */
-// import React from 'react'
-// import { CheckCircleIcon, XCircleIcon } from "lucide-react";
-
-// import { useContext, useEffect } from "react";
+// /* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable no-unused-vars */
+// import { useContext, useEffect, useState } from "react";
 // import { DoctorContext } from "../../context/DoctorContext";
 // import { AppContext } from "../../context/AppContext";
 // import { assets } from "../../assets/assets";
 // import Modal from "react-modal";
+// import { useNavigate } from "react-router-dom";
+// import { FaSearch } from "react-icons/fa";
 
 // const DoctorAppointment = () => {
 //   const {
@@ -21,20 +21,61 @@
 //     setIsModalOpen,
 //   } = useContext(DoctorContext);
 //   const { calculateAge } = useContext(AppContext);
+//   const navigate = useNavigate();
+
+//   const [searchTerm, setSearchTerm] = useState("");
+
 //   useEffect(() => {
 //     if (dToken) {
 //       getAppointments();
 //     }
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
 //   }, [dToken]);
+
 //   useEffect(() => {
 //     Modal.setAppElement("#root");
-//   },[]);
+//   }, []);
+
+//   const handleViewHealthRecord = (appointmentId) => {
+//     fetchIllnessDetails(appointmentId);
+//     setTimeout(() => {
+//       window.scrollTo({
+//         top: document.documentElement.scrollHeight,
+//         behavior: "smooth",
+//       });
+//     }, 200);
+//   };
+
+//   const handleCloseModal = () => {
+//     setIsModalOpen(false);
+//   };
+
+//   const handleWritePrescription = (appointmentId) => {
+//     navigate(`/doctor-appointments/${appointmentId}`);
+//   };
+
+//   const filteredAppointments = appointments.filter((item) =>
+//     item.userData?.name.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
 //   return (
 //     <div className="w-full max-w-6xl m-5">
-//       <p className="mb-2 text-lg font-medium">All Appointments</p>
+//       {/* Header with Search */}
+//       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+//         <p className="text-lg font-medium">All Appointments</p>
+//         <div className="relative w-full sm:w-1/3">
+//           <input
+//             type="text"
+//             placeholder="Search by patient name"
+//             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//           />
+//           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none" />
+//         </div>
+//       </div>
+
 //       <div className="bg-white border rounded text-sm max-h-[80vh] overflow-y-scroll min-h-[50vh]">
-//         <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b">
+//         <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b">
 //           <p>#</p>
 //           <p>Patient</p>
 //           <p>Payment</p>
@@ -42,13 +83,14 @@
 //           <p>Date and Time</p>
 //           <p>Fees</p>
 //           <p>Action</p>
-//           <p>Health Record</p> {/* New column */}
+//           <p>Health Record</p>
+//           <p>Prescription</p>
 //         </div>
 
-//         {appointments.map((item, index) => (
+//         {filteredAppointments.map((item, index) => (
 //           <div
 //             key={index}
-//             className="grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b"
+//             className="grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr_1fr_1fr] gap-1 py-3 px-6 border-b"
 //           >
 //             <p>{index + 1}</p>
 //             <div className="flex items-center gap-2">
@@ -77,61 +119,85 @@
 //                   onClick={() => cancelAppointment(item._id)}
 //                   className="w-10 cursor-pointer"
 //                   src={assets.cancel_icon}
-//                   alt=""
+//                   alt="Cancel"
 //                 />
 //                 <img
 //                   onClick={() => completeAppointment(item._id)}
 //                   className="w-10 cursor-pointer"
 //                   src={assets.tick_icon}
-//                   alt=""
+//                   alt="Complete"
 //                 />
 //               </div>
 //             )}
 
-//             {/* Tick or Cross icon based on appointment status */}
-//             {/* {item.status === "approved" ? (
-//               <CheckCircleIcon className="text-green-500 w-6 h-6 " />
-//             ) : (
-//               <XCircleIcon className="text-red-500 w-6 h-6" />
-//             )} */}
 //             <div>
 //               <button
-//                  onClick={() => fetchIllnessDetails(item._id)}
+//                 onClick={() => handleViewHealthRecord(item._id)}
 //                 className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded-md shadow transition duration-200"
 //               >
 //                 View Health Record
 //               </button>
 //             </div>
+//             <div>
+//               <button
+//                 onClick={() => handleWritePrescription(item._id)}
+//                 className="px-3 py-1 bg-pink-500 hover:bg-pink-600 text-white text-xs rounded-md shadow transition duration-200"
+//               >
+//                 Write Prescription
+//               </button>
+//             </div>
 //           </div>
 //         ))}
 //       </div>
-//        {/* Modal to display illness details */}
-//        <Modal
+
+//       {/* Illness Details Modal */}
+//       <Modal
 //         isOpen={isModalOpen}
-//         onRequestClose={() => setIsModalOpen(false)}
+//         onRequestClose={handleCloseModal}
 //         contentLabel="Illness Details"
-//         className="modal"
+//         className="modal-card"
 //         overlayClassName="overlay"
 //       >
-//         <h2 className="text-2xl font-bold text-center mb-4">Illness Details</h2>
-//         <div>
-//           <p><strong>Symptoms:</strong> {selectedIllnessDetails?.symptoms}</p>
-//           <p><strong>History:</strong> {selectedIllnessDetails?.history}</p>
-//           <p><strong>Medications:</strong> {selectedIllnessDetails?.medications}</p>
-//           <p><strong>Description:</strong> {selectedIllnessDetails?.description}</p>
+//         <div className="flex justify-center items-center fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+//           <div className="p-6 bg-white rounded-lg shadow-lg w-[50vw] max-h-[80vh] overflow-y-auto">
+//             <h2 className="text-2xl font-bold text-center mb-4">
+//               Health Record
+//             </h2>
+//             <div>
+//               <p>
+//                 <strong>Symptoms:</strong> {selectedIllnessDetails?.symptoms}
+//               </p>
+//               <p>
+//                 <strong>History:</strong> {selectedIllnessDetails?.history}
+//               </p>
+//               <p>
+//                 <strong>Medications:</strong>{" "}
+//                 {selectedIllnessDetails?.medications}
+//               </p>
+//               <p>
+//                 <strong>Description:</strong>{" "}
+//                 {selectedIllnessDetails?.description}
+//               </p>
+//             </div>
+//             <button
+//               onClick={handleCloseModal}
+//               className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+//             >
+//               Close
+//             </button>
+//           </div>
 //         </div>
-//         <button
-//           onClick={() => setIsModalOpen(false)}
-//           className="bg-red-500 text-white px-4 py-2 rounded mt-4"
-//         >
-//           Close
-//         </button>
 //       </Modal>
 //     </div>
 //   );
 // };
 
 // export default DoctorAppointment;
+
+
+
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { useContext, useEffect, useState } from "react";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
@@ -185,9 +251,32 @@ const DoctorAppointment = () => {
     navigate(`/doctor-appointments/${appointmentId}`);
   };
 
-  const filteredAppointments = appointments.filter((item) =>
-    item.userData?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAppointments = appointments.filter((item) => {
+    const term = searchTerm.toLowerCase();
+
+    const name = item.userData?.name?.toLowerCase() || "";
+
+    const age = calculateAge(item.userData?.dob)?.toString() || "";
+
+    const payment = item.payment ? "online" : "cash";
+
+    const dateTime = `${item.slotDate} ${item.slotTime}`.toLowerCase();
+
+    const fees = item.docData?.fees?.toString() || "";
+
+    let status = "active";
+    if (item.cancelled) status = "cancelled";
+    else if (item.isCompleted) status = "completed";
+
+    return (
+      name.includes(term) ||
+      age.includes(term) ||
+      payment.includes(term) ||
+      dateTime.includes(term) ||
+      fees.includes(term) ||
+      status.includes(term)
+    );
+  });
 
   return (
     <div className="w-full max-w-6xl m-5">
@@ -197,7 +286,7 @@ const DoctorAppointment = () => {
         <div className="relative w-full sm:w-1/3">
           <input
             type="text"
-            placeholder="Search by patient name"
+            placeholder="Search"
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -303,12 +392,10 @@ const DoctorAppointment = () => {
                 <strong>History:</strong> {selectedIllnessDetails?.history}
               </p>
               <p>
-                <strong>Medications:</strong>{" "}
-                {selectedIllnessDetails?.medications}
+                <strong>Medications:</strong> {selectedIllnessDetails?.medications}
               </p>
               <p>
-                <strong>Description:</strong>{" "}
-                {selectedIllnessDetails?.description}
+                <strong>Description:</strong> {selectedIllnessDetails?.description}
               </p>
             </div>
             <button

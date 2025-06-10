@@ -112,10 +112,17 @@ const doctorDashboard = async (req, res) => {
         patients.push(item.userId);
       }
     });
+     // Count completed appointments
+    const totalCompletedAppointments = appointments.filter(item => item.isCompleted).length;
+
+    // Count cancelled appointments
+    const totalCancelledAppointments = appointments.filter(item => item.cancelled).length;
     const dashData = {
       earnings,
       appointments: appointments.length,
       patients: patients.length,
+      totalCompletedAppointments,  // Add completed appointments count
+      totalCancelledAppointments,  // Add cancelled appointments count
       latestAppointments: appointments.reverse().slice(0, 5),
     };
     res.json({ success: true, dashData });

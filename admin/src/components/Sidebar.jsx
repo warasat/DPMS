@@ -13,7 +13,7 @@ const Sidebar = () => {
     <div className="flex min-h-screen bg-white">
       {/* Sidebar */}
       {aToken && (
-        <div className=" w-64 bg-gray-100  p-4">
+        <div className="w-64 bg-gray-100 p-4 sticky top-0 h-screen">
           <ul>
             <li className="mb-6">
               <NavLink
@@ -88,7 +88,7 @@ const Sidebar = () => {
       )}
 
       {dToken && (
-        <div className=" w-64 bg-gray-100  p-4">
+        <div className="w-64 bg-gray-100 p-4 sticky top-0 h-screen">
           <ul>
             <li className="mb-6">
               <NavLink

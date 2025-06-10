@@ -12,6 +12,7 @@ import {
   saveIllnessDetails,
   getPrescriptionDetails,
   generateReport,
+  submitContactForm,
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 import upload from "../middlewares/multer.js";
@@ -34,6 +35,7 @@ userRouter.post("/create-checkout-session", authUser, createCheckoutSession);
 userRouter.post("/verify-payment", authUser, verifyPayment);
 userRouter.post("/save-illness-details",authUser, saveIllnessDetails);
 userRouter.get("/get-prescription/:appointmentId",authUser, getPrescriptionDetails);
+userRouter.post("/contact-form", submitContactForm);
 
 
 

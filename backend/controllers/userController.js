@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/Doctor.js";
 import appointmentModel from "../models/Appointment.js";
 import Prescription from "../models/Prescription.js";
+import Contact from "../models/ContactUs.js"
 import dotenv from "dotenv";
 dotenv.config();
 import Stripe from "stripe";
@@ -469,6 +470,34 @@ const generateReport = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+// Handle the contact form submission
+const submitContactForm = async (req, res) => {
+  try {
+    const { name, email, phone, comment } = req.body;
+
+    // Basic validation
+    if (!name || !email || !phone || !comment) {
+      return res.status(400).json({ success: false, message: "All fields are required." });
+    }
+
+    // Create a new contact entry in the database
+    const newContact = new Contact({
+      name,
+      email,
+      phone,
+      comment,
+    });
+
+    // Save the contact data to the database
+    await newContact.save();
+
+    // Return success response
+    res.json({ success: true, message: "Your message has been submitted successfully." });
+  } catch (err) {
+    console.error("Contact form submission error:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
 export {
   registerUser,
@@ -483,4 +512,5 @@ export {
   saveIllnessDetails,
   getPrescriptionDetails,
   generateReport,
+  submitContactForm,
 };

@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { assets } from "../assets/assets";
+import ContactUs from "./ContactUs";
 
 const About = () => {
   return (
@@ -72,7 +73,11 @@ const About = () => {
           </p>
         </div>
       </div>
+      <div>
+        <ContactUs/>
+      </div>
     </div>
+    
   );
 };
 

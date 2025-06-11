@@ -275,7 +275,7 @@ function Navbar() {
               to="/login"
               className="btn bg-white text-blue-900 hover:bg-gray-200"
             >
-              Create account
+              Login
             </NavLink>
           ) : (
             <div className="flex items-center space-x-2 cursor-pointer group relative">

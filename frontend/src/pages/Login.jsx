@@ -100,23 +100,51 @@ import React, { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { backendUrl, token, setToken } = useContext(AppContext); // Access context
-  const navigate = useNavigate(); // Initialize navigate
+  const { backendUrl, token, setToken } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const [state, setState] = useState("Sign Up");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  const sendOtp = async () => {
+    try {
+      await axios.post(`${backendUrl}/api/otp/send-otp`, { email });
+      toast.success("OTP sent to your email");
+      setOtpSent(true);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to send OTP");
+    }
+  };
+
+  const verifyOtp = async () => {
+    try {
+      await axios.post(`${backendUrl}/api/otp/verify-otp`, { email, otp });
+      toast.success("OTP verified!");
+      setOtpVerified(true);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Invalid OTP");
+    }
+  };
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
     try {
       if (state === "Sign Up") {
-        // Sign-up request to backend
+        if (!otpVerified) {
+          toast.error("Please verify OTP before signing up.");
+          return;
+        }
+
         const { data } = await axios.post(backendUrl + "/api/user/register", {
           name,
           email,
@@ -125,14 +153,14 @@ const Login = () => {
 
         if (data.success) {
           localStorage.setItem("token", data.token);
-          setToken(data.token); // Update context with new token
+          setToken(data.token);
           toast.success("Account created successfully!");
-          navigate("/"); // Optional: redirect after sign up
+          // navigate("/");
+          setState("Login");
         } else {
           toast.error(data.message || "Sign up failed.");
         }
       } else {
-        // Login request to backend
         const response = await axios.post(backendUrl + "/api/user/login", {
           email,
           password,
@@ -142,26 +170,25 @@ const Login = () => {
 
         if (response.status === 200 && data.success) {
           localStorage.setItem("token", data.token);
-          setToken(data.token); // Update context with new token
+          setToken(data.token);
           toast.success("Logged in successfully!");
-          navigate("/"); // Redirect to home page after successful login
+          navigate("/");
         }
       }
     } catch (error) {
-      // Handle login/signup errors based on status code
       if (
         error.response &&
         error.response.status === 401 &&
         error.response.data &&
         error.response.data.message
       ) {
-        toast.error("Incorrect credentials"); // for login
+        toast.error("Incorrect credentials");
       } else if (
         error.response &&
         error.response.data &&
         error.response.data.message
       ) {
-        toast.error(error.response.data.message); // general error from backend
+        toast.error(error.response.data.message);
       } else {
         toast.error("Something went wrong. Please try again.");
       }
@@ -197,11 +224,47 @@ const Login = () => {
           <input
             className="border border-zinc-300 rounded w-full p-2 mt-1"
             type="email"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setOtpSent(false);
+              setOtpVerified(false);
+            }}
             value={email}
             required
           />
         </div>
+
+        {state === "Sign Up" && !otpSent && (
+          <button
+            type="button"
+            onClick={sendOtp}
+            className="bg-blue-600 text-white w-full py-2 rounded-md text-sm"
+          >
+            Send OTP
+          </button>
+        )}
+
+        {state === "Sign Up" && otpSent && !otpVerified && (
+          <>
+            <div className="w-full">
+              <p>Enter OTP</p>
+              <input
+                className="border border-zinc-300 rounded w-full p-2 mt-1"
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={verifyOtp}
+              className="bg-green-600 text-white w-full py-2 rounded-md text-sm"
+            >
+              Verify OTP
+            </button>
+          </>
+        )}
+
         <div className="w-full">
           <p>Password</p>
           <input
@@ -212,14 +275,20 @@ const Login = () => {
             required
           />
         </div>
+
         <button className="bg-primary text-white w-full py-2 rounded-md text-base">
           {state === "Sign Up" ? "Create Account" : "Login"}
         </button>
+
         {state === "Sign Up" ? (
           <p>
             Already have an account?{" "}
             <span
-              onClick={() => setState("Login")}
+              onClick={() => {
+                setState("Login");
+                setOtpSent(false);
+                setOtpVerified(false);
+              }}
               className="text-primary underline cursor-pointer"
             >
               Login here
@@ -229,21 +298,17 @@ const Login = () => {
           <p>
             Create a new account?{" "}
             <span
-              onClick={() => setState("Sign Up")}
+              onClick={() => {
+                setState("Sign Up");
+                setOtpSent(false);
+                setOtpVerified(false);
+              }}
               className="text-primary underline cursor-pointer"
             >
               Click here
             </span>
           </p>
         )}
-        <p>
-          {/* <span
-    onClick={() => navigate('/forgot-password')} // Redirect to Forgot Password page
-    className="text-primary underline cursor-pointer"
-  >
-    Forgot Password?
-  </span> */}
-        </p>
       </div>
     </form>
   );

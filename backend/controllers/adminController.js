@@ -91,6 +91,7 @@ import doctorModel from "../models/Doctor.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/Appointment.js";
 import userModel from "../models/User.js";
+import Contact from "../models/ContactUs.js"
 
 const addDoctor = async (req, res) => {
   try {
@@ -309,8 +310,24 @@ const adminDashboard = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+// Controller to fetch all contact forms
+const getAllContactForms = async (req, res) => {
+  try {
+    const contactForms = await Contact.find();  // Query to fetch contact forms from the database
+    
+    if (!contactForms || contactForms.length === 0) {
+      return res.status(404).json({ success: false, message: "No contact forms found." });
+    }
+
+    res.json({ success: true, contactForms });  // Send the contact forms in the response
+  } catch (err) {
+    console.error("Error fetching contact forms:", err);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
 
 
 
-export { addDoctor, loginAdmin, allDcotors, allAppointments, appointmentCancel, adminDashboard };
+
+export { addDoctor, loginAdmin, allDcotors, allAppointments, appointmentCancel, adminDashboard, getAllContactForms };

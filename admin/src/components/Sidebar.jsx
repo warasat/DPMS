@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useContext } from "react";
+import { MdFeedback } from "react-icons/md";
 import { AdminContext } from "../context/AdminContext";
 import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
@@ -81,6 +82,19 @@ const Sidebar = () => {
                   className="w-6 h-6"
                 />
                 <p>Doctors list</p>
+              </NavLink>
+            </li>
+            <li className="mb-6">
+              <NavLink
+                to="/patients-feedback"
+                className={({ isActive }) =>
+                  isActive
+                    ? "flex items-center space-x-2 text-white bg-blue-900 p-2 rounded-md"
+                    : "flex items-center space-x-2 text-gray-700 hover:text-blue-600"
+                }
+              >
+                <MdFeedback className="w-6 h-6" />
+                <p>Feedback</p>
               </NavLink>
             </li>
           </ul>

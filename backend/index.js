@@ -9,6 +9,7 @@ import doctorRouter from "./routes/doctorRoute.js";
 import userRouter from "./routes/userRoute.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import router from "./routes/otpRoute.js";
 // ESM setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,6 +38,8 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 app.use("/reports", express.static(path.join(__dirname, "reports")));
+//
+app.use("/api/otp", router);
 // Listen on PORT
 const PORT = 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

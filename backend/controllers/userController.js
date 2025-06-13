@@ -7,13 +7,15 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/Doctor.js";
 import appointmentModel from "../models/Appointment.js";
 import Prescription from "../models/Prescription.js";
-import Contact from "../models/ContactUs.js"
+import Contact from "../models/ContactUs.js";
 import dotenv from "dotenv";
 dotenv.config();
 import Stripe from "stripe";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 import { fileURLToPath } from "url";
 // Required to handle __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -477,7 +479,9 @@ const submitContactForm = async (req, res) => {
 
     // Basic validation
     if (!name || !email || !phone || !comment) {
-      return res.status(400).json({ success: false, message: "All fields are required." });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required." });
     }
 
     // Create a new contact entry in the database
@@ -492,10 +496,78 @@ const submitContactForm = async (req, res) => {
     await newContact.save();
 
     // Return success response
-    res.json({ success: true, message: "Your message has been submitted successfully." });
+    res.json({
+      success: true,
+      message: "Your message has been submitted successfully.",
+    });
   } catch (err) {
     console.error("Contact form submission error:", err);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const forgotOtpStore = new Map();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "muzammilarif367@gmail.com",
+    pass: "gdea linf scvk zhll",
+  },
+});
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const user = await userModel.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: "Email not registered" });
+  }
+
+  const otp = crypto.randomInt(100000, 999999).toString();
+  forgotOtpStore.set(email, otp);
+  setTimeout(() => forgotOtpStore.delete(email), 5 * 60 * 1000);
+
+  const mailOptions = {
+    from: "muzammilarif367@gmail.com",
+    to: email,
+    subject: "Reset Your Password - DPMS",
+    html: `<p>Your OTP is <strong>${otp}</strong></p>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to send email", error });
+  }
+};
+
+const verifyForgotOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  const storedOtp = forgotOtpStore.get(email);
+  if (!storedOtp || storedOtp !== otp) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  forgotOtpStore.delete(email);
+  res.status(200).json({ message: "OTP verified" });
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await userModel.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to reset password" });
   }
 };
 
@@ -513,4 +585,7 @@ export {
   getPrescriptionDetails,
   generateReport,
   submitContactForm,
+  forgotPassword,
+  verifyForgotOtp,
+  resetPassword,
 };

@@ -13,6 +13,9 @@ import {
   getPrescriptionDetails,
   generateReport,
   submitContactForm,
+  forgotPassword,
+  verifyForgotOtp,
+  resetPassword,
 } from "../controllers/userController.js";
 import authUser from "../middlewares/authUser.js";
 import upload from "../middlewares/multer.js";
@@ -33,11 +36,18 @@ userRouter.get("/appointments", authUser, listAppointment);
 userRouter.post("/cancel-appointment", authUser, cancelAppointment);
 userRouter.post("/create-checkout-session", authUser, createCheckoutSession);
 userRouter.post("/verify-payment", authUser, verifyPayment);
-userRouter.post("/save-illness-details",authUser, saveIllnessDetails);
-userRouter.get("/get-prescription/:appointmentId",authUser, getPrescriptionDetails);
+userRouter.post("/save-illness-details", authUser, saveIllnessDetails);
+userRouter.get(
+  "/get-prescription/:appointmentId",
+  authUser,
+  getPrescriptionDetails
+);
 userRouter.post("/contact-form", submitContactForm);
+userRouter.post("/forgotPassword", forgotPassword);
+userRouter.post("/reset-password", resetPassword);
 
-
+// POST /api/forgot-password/verify - Verify OTP
+userRouter.post("/forgotPassword/verify", verifyForgotOtp);
 
 // Generate report
 userRouter.post("/generate-report", authUser, generateReport);

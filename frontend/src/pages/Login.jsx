@@ -267,14 +267,25 @@ const Login = () => {
           {otpVerified && (
             <>
               <div className="w-full">
-                <p>New Password</p>
+                <p>Password</p>
                 <input
-                  className="border border-zinc-300 rounded w-full p-2 mt-1"
+                  className={`border rounded w-full p-2 mt-1 ${
+                    password.length > 0 && password.length < 8
+                      ? "border-red-500"
+                      : "border-zinc-300"
+                  }`}
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
+                {password.length > 0 && password.length < 8 && (
+                  <p className="text-red-500 text-xs mt-1">
+                    Password must be at least 8 characters.
+                  </p>
+                )}
               </div>
+
               <button
                 type="button"
                 onClick={async () => {
@@ -395,12 +406,21 @@ const Login = () => {
           <div className="w-full">
             <p>Password</p>
             <input
-              className="border border-zinc-300 rounded w-full p-2 mt-1"
+              className={`border rounded w-full p-2 mt-1 ${
+                password.length > 0 && password.length < 8
+                  ? "border-red-500"
+                  : "border-zinc-300"
+              }`}
               type="password"
-              onChange={(e) => setPassword(e.target.value)}
               value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {password.length > 0 && password.length < 8 && (
+              <p className="text-red-500 text-xs mt-1">
+                Password must be at least 8 characters.
+              </p>
+            )}
           </div>
 
           <button className="bg-primary text-white w-full py-2 rounded-md text-base">

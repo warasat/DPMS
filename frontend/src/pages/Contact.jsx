@@ -28,7 +28,12 @@ const Contact = () => {
             {" "}
             Learn more about our teams and job openings.
           </p>
-          <button className="font-semibold border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500">
+          <button
+            onClick={() =>
+              window.open("https://www.linkedin.com/home", "_blank")
+            }
+            className="font-semibold border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500"
+          >
             Explore Jobs
           </button>
         </div>

@@ -350,7 +350,16 @@ const Login = () => {
               <input
                 className="border border-zinc-300 rounded w-full p-2 mt-1"
                 type="text"
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setName(value);
+
+                  const isValidName = /^[a-zA-Z\s]*$/.test(value); // allows only letters and spaces
+
+                  if (value.length > 0 && !isValidName) {
+                    toast.warn("Name must contain only letters and spaces.");
+                  }
+                }}
                 value={name}
                 required
               />
@@ -363,15 +372,23 @@ const Login = () => {
               className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="email"
               onChange={(e) => {
-                setEmail(e.target.value);
+                const value = e.target.value;
+                setEmail(value);
                 setOtpSent(false);
                 setOtpVerified(false);
+
+                const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@gmail\.com$/;
+
+                if (value.length > 0 && !emailRegex.test(value)) {
+                  toast.warn(
+                    "Email must start with a character and end with @gmail.com"
+                  );
+                }
               }}
               value={email}
               required
             />
           </div>
-
           {state === "Sign Up" && !otpSent && (
             <button
               type="button"

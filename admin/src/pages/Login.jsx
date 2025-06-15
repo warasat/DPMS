@@ -142,7 +142,7 @@
 //       className="min-h-[80vh] flex items-center "
 //       onSubmit={onsubmitHandler}
 //     >
-      
+
 //       <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-[#5E5E5E] text-sm shadow-lg">
 //         <p className="text-2xl font-semibold m-auto">
 //           <span className="text-primary">{state} </span> Login
@@ -278,7 +278,9 @@ const Login = () => {
                   toast.success("OTP sent to your email");
                   setOtpSent(true);
                 } catch (err) {
-                  toast.error(err?.response?.data?.message || "Failed to send OTP");
+                  toast.error(
+                    err?.response?.data?.message || "Failed to send OTP"
+                  );
                 }
               }}
               className="bg-blue-600 text-white w-full py-2 rounded-md text-sm"
@@ -303,11 +305,16 @@ const Login = () => {
                 type="button"
                 onClick={async () => {
                   try {
-                    await axios.post(`${backendUrl}/api/doctor/forgotPassword/verify`, {
-                      email,
-                      otp,
-                    });
-                    toast.success("OTP verified. You can now reset your password.");
+                    await axios.post(
+                      `${backendUrl}/api/doctor/forgotPassword/verify`,
+                      {
+                        email,
+                        otp,
+                      }
+                    );
+                    toast.success(
+                      "OTP verified. You can now reset your password."
+                    );
                     setOtpVerified(true);
                   } catch (err) {
                     toast.error(err?.response?.data?.message || "Invalid OTP");
@@ -355,7 +362,9 @@ const Login = () => {
                       toast.error(data.message || "Failed to update password.");
                     }
                   } catch (err) {
-                    toast.error(err?.response?.data?.message || "Something went wrong.");
+                    toast.error(
+                      err?.response?.data?.message || "Something went wrong."
+                    );
                   }
                 }}
                 className="bg-blue-600 text-white w-full py-2 rounded-md text-base"
@@ -388,17 +397,38 @@ const Login = () => {
           <div className="w-full">
             <p>Email</p>
             <input
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              className="border border-[#DADADA] rounded w-full p-2 mt-1"
+              className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="email"
+              onChange={(e) => {
+                const value = e.target.value;
+                setEmail(value);
+                setOtpSent(false);
+                setOtpVerified(false);
+
+                const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]*@gmail\.com$/;
+
+                if (value.length > 0 && !emailRegex.test(value)) {
+                  toast.warn(
+                    "Email must start with a character and end with @gmail.com"
+                  );
+                }
+              }}
+              value={email}
               required
             />
           </div>
+
           <div className="w-full">
             <p>Password</p>
             <input
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPassword(value);
+
+                if (value.length > 0 && value.length < 8) {
+                  toast.warn("Password must be at least 8 characters");
+                }
+              }}
               value={password}
               className="border border-[#DADADA] rounded w-full p-2 mt-1"
               type="password"
@@ -449,4 +479,3 @@ const Login = () => {
 };
 
 export default Login;
-

@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import appointmentModel from "../models/Appointment.js";
 import Prescription from "../models/Prescription.js";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 dotenv.config();
 
 const changeAvailability = async (req, res) => {
@@ -231,6 +233,71 @@ const savePrescriptionDetails = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+const forgotOtpStore = new Map();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "muzammilarif367@gmail.com",
+    pass: "gdea linf scvk zhll",
+  },
+});
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const doctor = await doctorModel.findOne({ email });
+  if (!doctor) {
+    return res.status(404).json({ message: "Email not registered" });
+  }
+
+  const otp = crypto.randomInt(100000, 999999).toString();
+  forgotOtpStore.set(email, otp);
+  setTimeout(() => forgotOtpStore.delete(email), 5 * 60 * 1000);
+
+  const mailOptions = {
+    from: "muzammilarif367@gmail.com",
+    to: email,
+    subject: "Reset Your Password - DPMS",
+    html: `<p>Your OTP is <strong>${otp}</strong></p>`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to send email", error });
+  }
+};
+
+const verifyForgotOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  const storedOtp = forgotOtpStore.get(email);
+  if (!storedOtp || storedOtp !== otp) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  forgotOtpStore.delete(email);
+  res.status(200).json({ message: "OTP verified" });
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const doctor = await doctorModel.findOne({ email });
+    if (!doctor) return res.status(404).json({ message: "doctor not found" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    doctor.password = hashedPassword;
+    await doctor.save();
+
+    res.json({ success: true, message: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to reset password" });
+  }
+};
+
 
 
 export {
@@ -245,4 +312,7 @@ export {
   updateDoctorProfile,
   getIllnessDetails,
   savePrescriptionDetails,
+  forgotPassword,
+    verifyForgotOtp,
+    resetPassword,
 };

@@ -239,6 +239,7 @@ function Navbar() {
               </li>
             </ul>
           </div>
+          
           <NavLink to="/" className="btn btn-ghost text-xl">
             Doctor & Patient
           </NavLink>

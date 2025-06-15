@@ -188,12 +188,16 @@ const bookAppointment = async (req, res) => {
     await newAppointment.save();
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
 
+    
+
+
     res.json({ success: true, message: "Appointment Booked" });
   } catch (error) {
     console.error("Error booking appointment:", error);
     res.json({ success: false, message: error.message });
-  }
+  }  
 };
+
 
 // Api to get user appointments for frontend my-appointments page
 const listAppointment = async (req, res) => {

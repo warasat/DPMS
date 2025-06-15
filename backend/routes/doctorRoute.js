@@ -10,6 +10,9 @@ import {
   updateDoctorProfile,
   getIllnessDetails,
   savePrescriptionDetails,
+  forgotPassword,
+      verifyForgotOtp,
+      resetPassword,
 } from "../controllers/doctorController.js";
 import authDoctor from "../middlewares/authDoctor.js";
 const doctorRouter = express.Router();
@@ -23,5 +26,11 @@ doctorRouter.get("/profile", authDoctor, doctorProfile)
 doctorRouter.post('/update-profile', authDoctor, updateDoctorProfile)
 doctorRouter.get("/appointments/:appointmentId/illness-details", authDoctor, getIllnessDetails);
 doctorRouter.post("/save-prescription-details", authDoctor, savePrescriptionDetails);
+doctorRouter.post("/forgotPassword", forgotPassword);
+doctorRouter.post("/reset-password", resetPassword);
+
+// POST /api/forgot-password/verify - Verify OTP
+doctorRouter.post("/forgotPassword/verify", verifyForgotOtp);
+
 
 export default doctorRouter;

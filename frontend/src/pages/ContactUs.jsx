@@ -64,7 +64,7 @@ const ContactUs = () => {
       {/* Right Side: Form Section */}
       <div className="lg:w-1/2 w-full bg-white shadow-md p-6 rounded-md">
         <p className="text-center text-3xl font-semibold text-gray-800 mb-6">
-          Feedback Form
+          Contact Us
         </p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

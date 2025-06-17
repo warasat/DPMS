@@ -102,17 +102,21 @@ const AddDoctor = () => {
 
         <div className="flex flex-col lg:flex-row items-start gap-10 text-gray-600">
           <div className="w-full lg:flex-1 flex flex-col gap-4">
-            <div className="flex-1 flex flex-col gap-1">
-              <p>Doctor name</p>
-              <input
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-                className="border rounded px-3 py-2"
-                type="text"
-                placeholder="Name"
-                required
-              />
-            </div>
+<div className="flex-1 flex flex-col gap-1">
+  <p>Doctor name</p>
+  <input
+    value={name}
+    onChange={(e) => {
+      const filtered = e.target.value.replace(/[^A-Za-z\s]/g, '');
+      setName(filtered);
+    }}
+    className="border rounded px-3 py-2"
+    type="text"
+    placeholder="Name"
+    required
+  />
+</div>
+
 
             <div className="flex-1 flex flex-col gap-1">
               <p>Doctor email</p>
@@ -161,16 +165,21 @@ const AddDoctor = () => {
             </div>
 
             <div className="flex-1 flex flex-col gap-1">
-              <p>Doctor fees</p>
-              <input
-                onChange={(e) => setFees(e.target.value)}
-                value={fees}
-                className="border rounded px-3 py-2"
-                type="number"
-                placeholder="fees"
-                required
-              />
-            </div>
+  <p>Doctor fees</p>
+  <input
+    value={fees}
+    onChange={(e) => {
+      // Remove any non-digit character
+      const filtered = e.target.value.replace(/\D/g, '');
+      setFees(filtered);
+    }}
+    className="border rounded px-3 py-2"
+    type="text"
+    placeholder="Fees"
+    required
+  />
+</div>
+
           </div>
 
           <div className="w-full lg:flex-1 flex flex-col gap-4">

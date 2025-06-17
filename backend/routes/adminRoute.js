@@ -6,7 +6,8 @@ import {
   allAppointments,
   appointmentCancel,
   adminDashboard,
-  getAllContactForms
+  getAllContactForms,
+  blockDoctor,
 } from "../controllers/adminController.js";
 import upload from "../middlewares/multer.js";
 import authAdmin from "../middlewares/authAdmin.js";
@@ -22,4 +23,5 @@ adminRouter.get("/appointments" , authAdmin , allAppointments);
 adminRouter.post("/cancel-appointment" , authAdmin , appointmentCancel);
 adminRouter.get("/dashboard" ,authAdmin , adminDashboard);
 adminRouter.get("/contact-forms",authAdmin, getAllContactForms)
+adminRouter.put("/block-doctor/:doctorId", authAdmin, blockDoctor);
 export default adminRouter;

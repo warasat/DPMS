@@ -249,6 +249,29 @@ const AdminContextProvider = (props) => {
     }
   };
 
+  // In AdminContext.js
+const blockDoctor = async (doctorId) => {
+  try {
+    const response = await axios.put(
+      `${backendUrl}/api/admin/block-doctor/${doctorId}`,
+      {},
+      { headers: { aToken } }
+    );
+    if (response.data.success) {
+      // Update the doctors list locally after blocking/unblocking
+      setDoctors((prevDoctors) =>
+        prevDoctors.map((doctor) =>
+          doctor._id === doctorId ? { ...doctor, blocked: !doctor.blocked } : doctor
+        )
+      );
+      toast.success(response.data.message);
+    }
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Failed to block doctor");
+  }
+};
+
+
   // Providing all functions and states to the context
   const value = {
     aToken,
@@ -265,6 +288,8 @@ const AdminContextProvider = (props) => {
     getDashData,
     contactForms,
     getAllContactForms,  // Include the function to get contact forms
+    blockDoctor,
+    setDoctors,
   };
 
   return (

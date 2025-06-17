@@ -326,8 +326,30 @@ const getAllContactForms = async (req, res) => {
   }
 };
 
+//block and unblock of doctor 
+const blockDoctor = async (req, res) => {
+  try {
+    const { doctorId } = req.params; // Get the doctorId from the URL params
+    const doctor = await doctorModel.findById(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({ success: "false", message: "Doctor not found" });
+    }
+
+    // Toggle the blocked status
+    doctor.blocked = !doctor.blocked;
+    await doctor.save();
+
+    res.json({
+      success: "true",
+      message: doctor.blocked ? "Doctor blocked successfully" : "Doctor unblocked successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: "false", message: error.message });
+  }
+};
 
 
 
-
-export { addDoctor, loginAdmin, allDcotors, allAppointments, appointmentCancel, adminDashboard, getAllContactForms };
+export { addDoctor, loginAdmin, allDcotors, allAppointments, appointmentCancel, adminDashboard, getAllContactForms, blockDoctor };

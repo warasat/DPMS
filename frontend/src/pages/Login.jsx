@@ -1,102 +1,4 @@
-// /* eslint-disable no-unused-vars */
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-// const Login = () => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div>
-//       <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-//         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-//           <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-//             Sign in to your account
-//           </h2>
-//         </div>
-
-//         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-//           <form className="space-y-6">
-//             {/* Email Input */}
-//             <div>
-//               <label
-//                 htmlFor="email"
-//                 className="block text-sm/6 font-medium text-gray-900"
-//               >
-//                 Email address
-//               </label>
-//               <div className="mt-2">
-//                 <input
-//                   type="email"
-//                   name="email"
-//                   id="email"
-//                   autoComplete="email"
-//                   required
-//                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-//                 />
-//               </div>
-//             </div>
-
-//             {/* Password Input */}
-//             <div>
-//               <div className="flex items-center justify-between">
-//                 <label
-//                   htmlFor="password"
-//                   className="block text-sm/6 font-medium text-gray-900"
-//                 >
-//                   Password
-//                 </label>
-//                 <div className="text-sm">
-//                   <a
-//                     href="#"
-//                     className="font-semibold text-indigo-600 hover:text-indigo-500"
-//                   >
-//                     Forgot password?
-//                   </a>
-//                 </div>
-//               </div>
-//               <div className="mt-2">
-//                 <input
-//                   type="password"
-//                   name="password"
-//                   id="password"
-//                   autoComplete="current-password"
-//                   required
-//                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-//                 />
-//               </div>
-//             </div>
-
-//             {/* Submit Button */}
-//             <div>
-//               <button
-//                 onClick={() => navigate("/")}
-//                 type="submit"
-//                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-//               >
-//                 Sign in
-//               </button>
-//             </div>
-//           </form>
-
-//           {/* Sign up Link */}
-//           <p className="mt-10 text-center text-sm/6 text-gray-500">
-//             Not a member?
-//             <a
-//               href="#"
-//               className="font-semibold text-indigo-600 hover:text-indigo-500"
-//             >
-//               Start a 14 day free trial
-//             </a>
-//           </p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-//export default Login;
-
-/* eslint-disable no-unused-vars */
-import React, { useState, useContext } from "react";
+import  { useState, useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -114,6 +16,17 @@ const Login = () => {
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
+
+  const [loading, setLoading] = useState(true);  // Loading state to prevent rendering the login page initially
+
+  // Redirect if the user is already logged in
+  useEffect(() => {
+    if (token || localStorage.getItem("token")) {
+      navigate("/"); // Redirect to homepage if already logged in
+    } else {
+      setLoading(false); // Set loading to false once the check is done
+    }
+  }, [token, navigate]);
 
   const sendOtp = async () => {
     try {
@@ -171,7 +84,7 @@ const Login = () => {
           localStorage.setItem("token", data.token);
           setToken(data.token);
           toast.success("Logged in successfully!");
-          navigate("/");
+          navigate("/"); // Redirect to homepage or dashboard after login
         }
       }
     } catch (error) {
@@ -186,6 +99,8 @@ const Login = () => {
       }
     }
   };
+
+  if (loading) return null;  // Do not render the login page while checking
 
   return (
     <form className="min-h-[80vh] flex items-center" onSubmit={onSubmitHandler}>

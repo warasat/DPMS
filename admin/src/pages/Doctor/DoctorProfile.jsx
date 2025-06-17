@@ -242,26 +242,32 @@ const DoctorProfile = () => {
               </p>
             </div>
             <p className="text-gray-600 font-medium mt-4">
-              Appointment fee:{" "}
-              <span className="text-gray-800">
-                {currency}
-                {isEdit ? (
-                  <input
-                    type="number"
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
-                        ...prev,
-                        fees: e.target.value,
-                      }))
-                    }
-                    value={profileData.fees}
-                  />
-                ) : (
-                  profileData.fees
-                )}
-              </span>
-            </p>
-             <div className="flex gap-2 py-2">
+  Appointment fee:{" "}
+  <span className="text-gray-800">
+    {currency}
+    {isEdit ? (
+      <input
+        type="number"
+        onChange={(e) =>
+          setProfileData((prev) => ({
+            ...prev,
+            fees: e.target.value,
+          }))
+        }
+        value={profileData.fees}
+        min="1"
+        step="1" // Ensures that only integers are allowed
+        onInput={(e) => {
+          // Ensure the value is a valid positive integer
+          e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        }}
+      />
+    ) : (
+      profileData.fees
+    )}
+  </span>
+</p>
+ <div className="flex gap-2 py-2">
               <p>Address:</p>
               <p className="text-sm">
                 {isEdit ? (

@@ -33,20 +33,14 @@ const IllnessDetails = () => {
       [name]: "",
     }));
 
-    if (name === "symptoms" || name === "history") {
-      // Allow only characters and spaces for symptoms and history
-      if (!/^[A-Za-z\s]*$/.test(value)) {
+    // Regex to allow letters, spaces, and punctuation (commas, periods, parentheses, hyphens, etc.)
+    const regex = /^[A-Za-z\s,.\-()]*$/;
+
+    if (name === "symptoms" || name === "history" || name === "medications" || name === "description") {
+      if (!regex.test(value)) {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          [name]: `${name.charAt(0).toUpperCase() + name.slice(1)} must only contain letters and spaces.`,
-        }));
-      }
-    } else if (name === "medications" || name === "description") {
-      // Medications and description can start with a letter and allow numbers
-      if (!/^[A-Za-z][A-Za-z0-9\s]*$/.test(value)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [name]: `${name.charAt(0).toUpperCase() + name.slice(1)} must start with a letter and can contain numbers.`,
+          [name]: `${name.charAt(0).toUpperCase() + name.slice(1)} must only contain letters, spaces, and punctuation (commas, periods, parentheses).`,
         }));
       }
     }
@@ -61,25 +55,27 @@ const IllnessDetails = () => {
     let formErrors = {};
     let isValid = true;
 
-    // Symptoms and History should only contain letters and spaces
-    if (!/^[A-Za-z\s]*$/.test(illnessDetails.symptoms)) {
-      formErrors.symptoms = "Symptoms should only contain letters and spaces.";
+    // Regular expression to allow letters, spaces, and punctuation marks (commas, periods, parentheses, etc.)
+    const regex = /^[A-Za-z\s,.\-()]*$/;
+
+    // Validate all fields (symptoms, history, medications, description)
+    if (!regex.test(illnessDetails.symptoms)) {
+      formErrors.symptoms = "Symptoms should only contain letters, spaces, and punctuation (commas, periods, parentheses).";
       isValid = false;
     }
 
-    if (!/^[A-Za-z\s]*$/.test(illnessDetails.history)) {
-      formErrors.history = "History should only contain letters and spaces.";
+    if (!regex.test(illnessDetails.history)) {
+      formErrors.history = "History should only contain letters, spaces, and punctuation (commas, periods, parentheses).";
       isValid = false;
     }
 
-    // Medications and Description should start with a letter and allow numbers and spaces
-    if (!/^[A-Za-z][A-Za-z0-9\s]*$/.test(illnessDetails.medications)) {
-      formErrors.medications = "Medications should start with a letter and can contain numbers.";
+    if (!regex.test(illnessDetails.medications)) {
+      formErrors.medications = "Medications should only contain letters, spaces, and punctuation (commas, periods, parentheses).";
       isValid = false;
     }
 
-    if (!/^[A-Za-z][A-Za-z0-9\s]*$/.test(illnessDetails.description)) {
-      formErrors.description = "Description should start with a letter and can contain numbers.";
+    if (!regex.test(illnessDetails.description)) {
+      formErrors.description = "Description should only contain letters, spaces, and punctuation (commas, periods, parentheses).";
       isValid = false;
     }
 

@@ -11,6 +11,7 @@ const IllnessDetails = () => {
     history: "",
     medications: "",
     description: "",
+    age: "", // Added age field
   });
 
   const [errors, setErrors] = useState({
@@ -18,6 +19,7 @@ const IllnessDetails = () => {
     history: "",
     medications: "",
     description: "",
+    age: "", // Added age error state
   });
 
   const { appointmentId } = useParams(); // Get the appointment ID from the URL
@@ -41,6 +43,17 @@ const IllnessDetails = () => {
         setErrors((prevErrors) => ({
           ...prevErrors,
           [name]: `${name.charAt(0).toUpperCase() + name.slice(1)} must only contain letters, spaces, and punctuation (commas, periods, parentheses).`,
+        }));
+      }
+    }
+
+    // Handle age input, only positive integers allowed
+    if (name === "age") {
+      const ageRegex = /^[1-9][0-9]*$/; // Positive integer validation
+      if (!ageRegex.test(value)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          [name]: "Age must be a positive integer.",
         }));
       }
     }
@@ -76,6 +89,12 @@ const IllnessDetails = () => {
 
     if (!regex.test(illnessDetails.description)) {
       formErrors.description = "Description should only contain letters, spaces, and punctuation (commas, periods, parentheses).";
+      isValid = false;
+    }
+
+    // Validate Age input (only positive integers)
+    if (!/^[1-9][0-9]*$/.test(illnessDetails.age)) {
+      formErrors.age = "Age must be a positive integer.";
       isValid = false;
     }
 
@@ -126,6 +145,21 @@ const IllnessDetails = () => {
 
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Enter Your Illness Details</h2>
       <form onSubmit={handleSubmit} className="space-y-8">
+        
+        {/* Age Input Field - Moved to the top */}
+        <div className="input-group">
+          <label className="block text-2xl font-semibold text-gray-800 ">Age</label>
+          <input
+            type="text"
+            name="age"
+            value={illnessDetails.age}
+            onChange={handleChange}
+            className="w-full p-4 border-2 border-black rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter patient's age"
+          />
+          {errors.age && <p className="text-red-500 text-sm">{errors.age}</p>}
+        </div>
+
         <div className="input-group">
           <label className="block text-2xl font-semibold text-gray-800">Symptoms</label>
           <textarea
@@ -170,6 +204,7 @@ const IllnessDetails = () => {
           />
           {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
         </div>
+
         <button
           type="submit"
           className="w-auto py-3 px-6 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"

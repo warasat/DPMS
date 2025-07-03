@@ -27,14 +27,6 @@ function Banner() {
             >
               Book an Appointment
             </button>
-            {/* <div className="flex justify-center space-x-6 mt-6">
-              <button className="btn bg-blue-900 text-white hover:bg-blue-400 rounded-full px-10 py-2">
-                I`m Patient
-              </button>
-              <button className="btn  bg-blue-900 text-white hover:bg-blue-400  rounded-full px-10 py-2">
-                I`m Doctor
-              </button>
-            </div> */}
           </div>
         </div>
         <div className="w-full md:w-1/2">

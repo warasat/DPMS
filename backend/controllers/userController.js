@@ -457,8 +457,8 @@ const generateReport = async (req, res) => {
 
     // Add the prescription information for the doctor
     const prescription =
-      appointment.docData.prescription || "No prescription available";
-    doc.fontSize(14).text(`Prescription: ${prescription}`);
+      appointment.docData.prescription || "This Report is generated as part of our commitment to compassionate, data-driven healthcare.";
+    doc.fontSize(14).text(`${prescription}`);
     doc.moveDown();
 
     doc.text("Thank you for using our service.", { align: "left" });

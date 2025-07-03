@@ -76,7 +76,7 @@ function Navbar() {
           </div>
 
           <NavLink to="/" className="btn btn-ghost text-xl">
-            <FaUserMd className="inline-block mr-2" /> MediConnect_Doctor & Patient
+            <FaUserMd className="inline-block mr-2" />Doctor_&_Patient_Management_System
           </NavLink>
         </div>
 

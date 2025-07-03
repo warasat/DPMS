@@ -23,7 +23,7 @@ const Navbar = () => {
   return (
     <div className="flex justify-between items-center px-4 sm:px-4 py-3 p- border-b  bg-blue-900 text-white">
       <div className="flex items-center gap-2 text-xs">
-        <a className="btn btn-ghost text-xl"><FaUserMd className="inline-block mr-2" /> MediConnect_Doctor & Patient</a>
+        <a className="btn btn-ghost text-xl"><FaUserMd className="inline-block mr-2" />Doctor_&_Patient_Management_System</a>
         <p className="border px-2.5 py-0.5  rounded-full border-white-500 text-white-600 ">
           {aToken ? "Admin" : "Doctor"}
         </p>

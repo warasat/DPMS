@@ -16,7 +16,6 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import TopDoctors from "./components/TopDoctors";
 import HomeVisit from "./pages/HomeVisit";
-import ClinicVisit from "./pages/ClinicVisit";
 import ContactUs from "./pages/ContactUs";
 // import ForgotPassword from "./pages/ForgotPassword";
 // import ResetPassword from "./pages/ResetPassword";
@@ -40,7 +39,6 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/my-profile/homevisit" element={<HomeVisit />} />
-        <Route path="/my-profile/clinicvisit" element={<ClinicVisit />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
         <Route path="/appointment/:docId" element={<Appointment />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
